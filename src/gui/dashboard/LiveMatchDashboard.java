@@ -23,12 +23,12 @@ import data.sport.play.action.Rebound;
 import data.sport.play.action.Turnover;
 import data.sport.setup.Game;
 import data.sport.setup.GameResult;
+import gui.management.LiveMatchStatistics;
 import gui.panel.common.BuildBox;
 import gui.panel.liveMatchPanel.LiveActionsPanel;
 import gui.panel.liveMatchPanel.LiveMatchHeaderPanel;
 import gui.panel.liveMatchPanel.LiveTeamStatsPanel;
 import process.manager.LeagueManager;
-import process.manager.LiveMatchStatistics;
 import process.visitor.actionresult.ActionResultVisitor;
 
 public class LiveMatchDashboard extends JPanel {

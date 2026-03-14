@@ -14,6 +14,7 @@ import javax.swing.JPanel;
 
 import data.sport.setup.Game;
 import data.sport.setup.GameResult;
+import gui.panel.teamPanel.TeamLogoPanel;
 
 public class MatchResultPanel extends JPanel {
 	private static final Color TITLE_COLOR = new Color(0x17, 0x31, 0x74);
@@ -22,8 +23,8 @@ public class MatchResultPanel extends JPanel {
 
 	private JLabel titleLabel;
 	private JLabel matchStatusLabel;
-	private JLabel homeCodeLabel;
-	private JLabel awayCodeLabel;
+	private TeamLogoPanel homeLogoPanel;
+	private TeamLogoPanel awayLogoPanel;
 	private JLabel homeNameLabel;
 	private JLabel awayNameLabel;
 	private JLabel homeCityLabel;
@@ -69,8 +70,8 @@ public class MatchResultPanel extends JPanel {
 	public void showEmptyState() {
 		titleLabel.setText("SAISON RÉGULIÈRE");
 		matchStatusLabel.setText("À venir");
-		homeCodeLabel.setText("HOM");
-		awayCodeLabel.setText("AWA");
+		homeLogoPanel.setTeamName("");
+		awayLogoPanel.setTeamName("");
 		homeNameLabel.setText("Home");
 		awayNameLabel.setText("Away");
 		homeCityLabel.setText("-");
@@ -114,14 +115,8 @@ public class MatchResultPanel extends JPanel {
 		panel.setOpaque(false);
 		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 
-		JLabel codeLabel = new JLabel(home ? "HOM" : "AWA", JLabel.CENTER);
-		codeLabel.setOpaque(true);
-		codeLabel.setBackground(home ? PRIMARY_BAR_COLOR : new Color(230, 230, 230));
-		codeLabel.setForeground(home ? Color.WHITE : new Color(80, 80, 80));
-		codeLabel.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 16));
-		codeLabel.setHorizontalAlignment(JLabel.CENTER);
-		codeLabel.setAlignmentX(CENTER_ALIGNMENT);
-		codeLabel.setBorder(BorderFactory.createEmptyBorder(10, 12, 10, 12));
+		TeamLogoPanel logoPanel = new TeamLogoPanel("", 70);
+		logoPanel.setAlignmentX(CENTER_ALIGNMENT);
 
 		JLabel nameLabel = new JLabel(home ? "Home" : "Away");
 		nameLabel.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 14));
@@ -133,18 +128,18 @@ public class MatchResultPanel extends JPanel {
 		cityLabel.setForeground(SUBTITLE_COLOR);
 		cityLabel.setAlignmentX(CENTER_ALIGNMENT);
 
-		panel.add(codeLabel);
+		panel.add(logoPanel);
 		panel.add(Box.createVerticalStrut(8));
 		panel.add(nameLabel);
 		panel.add(Box.createVerticalStrut(4));
 		panel.add(cityLabel);
 
 		if (home) {
-			homeCodeLabel = codeLabel;
+			homeLogoPanel = logoPanel;
 			homeNameLabel = nameLabel;
 			homeCityLabel = cityLabel;
 		} else {
-			awayCodeLabel = codeLabel;
+			awayLogoPanel = logoPanel;
 			awayNameLabel = nameLabel;
 			awayCityLabel = cityLabel;
 		}
@@ -228,8 +223,8 @@ public class MatchResultPanel extends JPanel {
 
 	private void updateTeamLabels(String homeName, String awayName, String dayLabel) {
 		titleLabel.setText("SAISON RÉGULIÈRE - " + dayLabel.toUpperCase());
-		homeCodeLabel.setText(buildAbbreviation(homeName));
-		awayCodeLabel.setText(buildAbbreviation(awayName));
+		homeLogoPanel.setTeamName(homeName);
+		awayLogoPanel.setTeamName(awayName);
 		homeNameLabel.setText(extractShortName(homeName));
 		awayNameLabel.setText(extractShortName(awayName));
 		homeCityLabel.setText(extractCity(homeName));
@@ -264,20 +259,6 @@ public class MatchResultPanel extends JPanel {
 		}
 		homeQuarterTotalLabel.setText("-");
 		awayQuarterTotalLabel.setText("-");
-	}
-
-	private String buildAbbreviation(String teamName) {
-		String[] words = teamName.split(" ");
-		String abbreviation = "";
-		for (int i = 0; i < words.length && abbreviation.length() < 3; i++) {
-			if (!words[i].isEmpty()) {
-				abbreviation += words[i].substring(0, 1).toUpperCase();
-			}
-		}
-		while (abbreviation.length() < 3) {
-			abbreviation += "X";
-		}
-		return abbreviation;
 	}
 
 	private String extractShortName(String teamName) {

@@ -12,6 +12,8 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import gui.panel.teamPanel.TeamLogoPanel;
+
 public class LiveMatchHeaderPanel extends JPanel {
 	private static final Color TITLE_COLOR = new Color(0x17, 0x31, 0x74);
 	private static final Color SUBTITLE_COLOR = new Color(0x6D, 0x75, 0x83);
@@ -23,8 +25,8 @@ public class LiveMatchHeaderPanel extends JPanel {
 	private JButton playButton;
 	private JButton nextQuarterButton;
 	private JButton pauseButton;
-	private JLabel homeBadgeLabel;
-	private JLabel awayBadgeLabel;
+	private TeamLogoPanel homeLogoPanel;
+	private TeamLogoPanel awayLogoPanel;
 	private JLabel homeNameLabel;
 	private JLabel awayNameLabel;
 	private JLabel homeRoleLabel;
@@ -46,8 +48,8 @@ public class LiveMatchHeaderPanel extends JPanel {
 		playButton = new JButton("Play");
 		nextQuarterButton = new JButton("Quart");
 		pauseButton = new JButton("Pause");
-		homeBadgeLabel = createBadgeLabel(PRIMARY_COLOR, Color.WHITE);
-		awayBadgeLabel = createBadgeLabel(new Color(230, 230, 230), TEXT_COLOR);
+		homeLogoPanel = new TeamLogoPanel("", 56);
+		awayLogoPanel = new TeamLogoPanel("", 56);
 		homeNameLabel = createNameLabel();
 		awayNameLabel = createNameLabel();
 		homeRoleLabel = createRoleLabel("Domicile");
@@ -83,8 +85,8 @@ public class LiveMatchHeaderPanel extends JPanel {
 
 	public void updateHeader(String homeTeamName, String awayTeamName, int homeScore, int awayScore,
 			String quarterLabelText, String quarterTimeText) {
-		homeBadgeLabel.setText(buildAbbreviation(homeTeamName));
-		awayBadgeLabel.setText(buildAbbreviation(awayTeamName));
+		homeLogoPanel.setTeamName(homeTeamName);
+		awayLogoPanel.setTeamName(awayTeamName);
 		homeNameLabel.setText(extractShortName(homeTeamName));
 		awayNameLabel.setText(extractShortName(awayTeamName));
 		homeScoreLabel.setText(String.valueOf(homeScore));
@@ -103,13 +105,13 @@ public class LiveMatchHeaderPanel extends JPanel {
 	private JPanel buildCenterPanel() {
 		JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 14, 0));
 		panel.setOpaque(false);
-		panel.add(homeBadgeLabel);
+		panel.add(homeLogoPanel);
 		panel.add(buildTeamPanel(homeNameLabel, homeRoleLabel));
 		panel.add(homeScoreLabel);
 		panel.add(buildDashLabel());
 		panel.add(awayScoreLabel);
 		panel.add(buildTeamPanel(awayNameLabel, awayRoleLabel));
-		panel.add(awayBadgeLabel);
+		panel.add(awayLogoPanel);
 		return panel;
 	}
 
@@ -143,16 +145,6 @@ public class LiveMatchHeaderPanel extends JPanel {
 		JLabel label = new JLabel("-");
 		label.setForeground(TEXT_COLOR);
 		label.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 26));
-		return label;
-	}
-
-	private JLabel createBadgeLabel(Color background, Color foreground) {
-		JLabel label = new JLabel("XXX", JLabel.CENTER);
-		label.setOpaque(true);
-		label.setBackground(background);
-		label.setForeground(foreground);
-		label.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 16));
-		label.setBorder(BorderFactory.createEmptyBorder(10, 12, 10, 12));
 		return label;
 	}
 
@@ -205,20 +197,6 @@ public class LiveMatchHeaderPanel extends JPanel {
 		button.setForeground(Color.WHITE);
 		button.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 13));
 		button.setPreferredSize(new Dimension(84, 34));
-	}
-
-	private String buildAbbreviation(String teamName) {
-		String[] words = teamName.split(" ");
-		String abbreviation = "";
-		for (int i = 0; i < words.length && abbreviation.length() < 3; i++) {
-			if (!words[i].isEmpty()) {
-				abbreviation += words[i].substring(0, 1).toUpperCase();
-			}
-		}
-		while (abbreviation.length() < 3) {
-			abbreviation += "X";
-		}
-		return abbreviation;
 	}
 
 	private String extractShortName(String teamName) {

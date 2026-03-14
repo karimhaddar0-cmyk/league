@@ -1,9 +1,5 @@
 package process.builder;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-
 import config.FinanceConfiguration;
 import config.SimulationConfiguration;
 import data.finance.budget.Budget;
@@ -13,6 +9,9 @@ import data.league.League;
 import data.league.LeagueFinance;
 import data.player.Player;
 import data.team.Team;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import process.factory.PlayerFactory;
 import process.factory.TeamFactory;
 import process.repositery.CurrentSeasonAssetRepositery;
@@ -25,7 +24,7 @@ import process.utilitary.TeamUtilitary;
 
 public class LeagueBuilder {
 
-	private String filename = "/Users/enzophung/Fac/L2/GL projet/git/league/src/test/nba.csv";
+	private String filename = "src/test/nba.csv";
 	private PlayerRepositery playerRepositery = PlayerRepositery.getInstance();
 	private TeamRepositery teamRepositery = TeamRepositery.getInstance();
 	private DivisionRepositery divisionRepositery = DivisionRepositery.getInstance();
