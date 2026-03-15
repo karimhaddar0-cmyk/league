@@ -11,7 +11,6 @@ import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
-import javax.swing.Timer;
 
 import data.calendar.GameDay;
 import data.player.Player;
@@ -32,7 +31,7 @@ import gui.panel.liveMatchPanel.LiveTeamStatsPanel;
 import process.manager.LeagueManager;
 import process.visitor.actionresult.ActionResultVisitor;
 
-public class LiveMatchDashboard extends JPanel {
+public class LiveMatchDashboard extends JPanel implements Runnable {
 	private static final int DASHBOARD_SPACING = 16;
 	private static final int SIDE_COLUMN_WIDTH = 270;
 	private static final int LIVE_ROWS = 10;
@@ -48,8 +47,9 @@ public class LiveMatchDashboard extends JPanel {
 
 	private ArrayList<LiveMatchStatistics.LiveAction> liveActions;
 	private int liveActionIndex;
-	private Timer liveTimer;
 	private LiveMatchStatistics liveMatchStatistics;
+	private LiveMatchDashboard instance;
+	private boolean stop;
 
 	private LiveMatchHeaderPanel headerPanel;
 	private LiveActionsPanel liveActionsPanel;
@@ -69,11 +69,12 @@ public class LiveMatchDashboard extends JPanel {
 		awayTeamName = "AWAY";
 		liveActions = new ArrayList<LiveMatchStatistics.LiveAction>();
 		liveMatchStatistics = new LiveMatchStatistics();
+		instance = this;
+		stop = true;
 		headerPanel = new LiveMatchHeaderPanel();
 		liveActionsPanel = new LiveActionsPanel(LIVE_ROWS);
 		homeStatsPanel = new LiveTeamStatsPanel();
 		awayStatsPanel = new LiveTeamStatsPanel();
-		liveTimer = new Timer(LIVE_DELAY_MS, new PlayTimerAction());
 	}
 
 	private void organize() {
@@ -214,14 +215,30 @@ public class LiveMatchDashboard extends JPanel {
 	}
 
 	private void startLiveReading() {
-		if (!isMatchAvailable() || liveTimer.isRunning()) {
+		if (!isMatchAvailable() || !stop) {
 			return;
 		}
-		liveTimer.start();
+		stop = false;
+		Thread liveThread = new Thread(instance);
+		liveThread.start();
 	}
 
 	private void stopLiveReading() {
-		liveTimer.stop();
+		stop = true;
+	}
+
+	@Override
+	public void run() {
+		while (!stop) {
+			try {
+				Thread.sleep(LIVE_DELAY_MS);
+			} catch (InterruptedException e) {
+				System.out.println(e.getMessage());
+			}
+			if (!stop) {
+				playNextAction();
+			}
+		}
 	}
 
 	private void resetLiveState() {
@@ -398,13 +415,6 @@ public class LiveMatchDashboard extends JPanel {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			stopLiveReading();
-		}
-	}
-
-	private class PlayTimerAction implements ActionListener {
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			playNextAction();
 		}
 	}
 
