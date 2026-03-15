@@ -33,6 +33,10 @@ public class Player {
 	public void setStar(boolean isStar) {
 		this.isStar = isStar;
 	} 
+
+	public String getId() {
+		return id;
+	}
 	
 	public String getName() {
 		return name ; 

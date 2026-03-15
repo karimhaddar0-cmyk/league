@@ -1,5 +1,6 @@
 package gui.management;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import config.SimulationConfiguration;
@@ -37,10 +38,14 @@ public class LiveMatchStatistics {
 
 	private HashMap<String, Integer> homePlayerPoints;
 	private HashMap<String, Integer> awayPlayerPoints;
+	private HashMap<String, Player> homePlayers;
+	private HashMap<String, Player> awayPlayers;
 
 	public LiveMatchStatistics() {
 		homePlayerPoints = new HashMap<String, Integer>();
 		awayPlayerPoints = new HashMap<String, Integer>();
+		homePlayers = new HashMap<String, Player>();
+		awayPlayers = new HashMap<String, Player>();
 		reset();
 	}
 
@@ -63,6 +68,8 @@ public class LiveMatchStatistics {
 		awayThreeAttempts = 0;
 		homePlayerPoints.clear();
 		awayPlayerPoints.clear();
+		homePlayers.clear();
+		awayPlayers.clear();
 	}
 
 	public void applyAction(ActionResult action, HomePlayerChecker homePlayerChecker) {
@@ -90,6 +97,8 @@ public class LiveMatchStatistics {
 		state.awayThreeAttempts = awayThreeAttempts;
 		state.homePlayerPoints = new HashMap<String, Integer>(homePlayerPoints);
 		state.awayPlayerPoints = new HashMap<String, Integer>(awayPlayerPoints);
+		state.homePlayers = new HashMap<String, Player>(homePlayers);
+		state.awayPlayers = new HashMap<String, Player>(awayPlayers);
 		return state;
 	}
 
@@ -112,8 +121,12 @@ public class LiveMatchStatistics {
 		awayThreeAttempts = state.awayThreeAttempts;
 		homePlayerPoints.clear();
 		awayPlayerPoints.clear();
+		homePlayers.clear();
+		awayPlayers.clear();
 		homePlayerPoints.putAll(state.homePlayerPoints);
 		awayPlayerPoints.putAll(state.awayPlayerPoints);
+		homePlayers.putAll(state.homePlayers);
+		awayPlayers.putAll(state.awayPlayers);
 	}
 
 	public int getHomePoints() {
@@ -172,6 +185,14 @@ public class LiveMatchStatistics {
 		return buildTopPlayersText(awayPlayerPoints);
 	}
 
+	public PlayerLiveSummary[] getHomeBestPlayers() {
+		return buildTopPlayers(homePlayerPoints, homePlayers);
+	}
+
+	public PlayerLiveSummary[] getAwayBestPlayers() {
+		return buildTopPlayers(awayPlayerPoints, awayPlayers);
+	}
+
 	private int getPlayerPoints(HashMap<String, Integer> map, String playerName) {
 		Integer current = map.get(playerName);
 		if (current == null) {
@@ -185,6 +206,39 @@ public class LiveMatchStatistics {
 			return "0%";
 		}
 		return (int) Math.round((made * 100.0) / attempts) + "%";
+	}
+
+	private void addTopPlayers(ArrayList<PlayerLiveSummary> summaries, HashMap<String, Integer> playerPoints,
+			HashMap<String, Player> players) {
+		for (String playerName : playerPoints.keySet()) {
+			Player player = players.get(playerName);
+			if (player == null) {
+				continue;
+			}
+			insertSummary(summaries, new PlayerLiveSummary(player, playerPoints.get(playerName).intValue()));
+		}
+	}
+
+	private PlayerLiveSummary[] buildTopPlayers(HashMap<String, Integer> playerPoints, HashMap<String, Player> players) {
+		ArrayList<PlayerLiveSummary> summaries = new ArrayList<PlayerLiveSummary>();
+		addTopPlayers(summaries, playerPoints, players);
+
+		PlayerLiveSummary[] topPlayers = new PlayerLiveSummary[2];
+		for (int i = 0; i < topPlayers.length && i < summaries.size(); i++) {
+			topPlayers[i] = summaries.get(i);
+		}
+		return topPlayers;
+	}
+
+	private void insertSummary(ArrayList<PlayerLiveSummary> summaries, PlayerLiveSummary summary) {
+		int index = 0;
+		while (index < summaries.size() && summaries.get(index).getPoints() >= summary.getPoints()) {
+			index++;
+		}
+		summaries.add(index, summary);
+		while (summaries.size() > 2) {
+			summaries.remove(summaries.size() - 1);
+		}
 	}
 
 	private String buildTopPlayersText(HashMap<String, Integer> players) {
@@ -244,9 +298,11 @@ public class LiveMatchStatistics {
 			if (homeScorer) {
 				homePoints += points;
 				homePlayerPoints.put(scorer.getName(), getPlayerPoints(homePlayerPoints, scorer.getName()) + points);
+				homePlayers.put(scorer.getName(), scorer);
 			} else {
 				awayPoints += points;
 				awayPlayerPoints.put(scorer.getName(), getPlayerPoints(awayPlayerPoints, scorer.getName()) + points);
+				awayPlayers.put(scorer.getName(), scorer);
 			}
 
 			if (SimulationConfiguration.THREEPOINT.equals(shotType)) {
@@ -354,6 +410,8 @@ public class LiveMatchStatistics {
 		int awayThreeAttempts;
 		HashMap<String, Integer> homePlayerPoints;
 		HashMap<String, Integer> awayPlayerPoints;
+		HashMap<String, Player> homePlayers;
+		HashMap<String, Player> awayPlayers;
 
 		public int getLiveActionIndex() {
 			return liveActionIndex;
@@ -361,6 +419,24 @@ public class LiveMatchStatistics {
 
 		public void setLiveActionIndex(int liveActionIndex) {
 			this.liveActionIndex = liveActionIndex;
+		}
+	}
+
+	public static class PlayerLiveSummary {
+		private Player player;
+		private int points;
+
+		public PlayerLiveSummary(Player player, int points) {
+			this.player = player;
+			this.points = points;
+		}
+
+		public Player getPlayer() {
+			return player;
+		}
+
+		public int getPoints() {
+			return points;
 		}
 	}
 }

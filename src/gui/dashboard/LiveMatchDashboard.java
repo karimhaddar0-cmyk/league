@@ -235,11 +235,11 @@ public class LiveMatchDashboard extends JPanel {
 		homeStatsPanel.updateStats(liveMatchStatistics.getHomePoints(), liveMatchStatistics.getHomeRebounds(),
 				liveMatchStatistics.getHomeAssists(), liveMatchStatistics.getHomeTurnovers(),
 				liveMatchStatistics.getHomeFgPercent(), liveMatchStatistics.getHomeThreePercent(),
-				liveMatchStatistics.getHomeBestPlayersText());
+				liveMatchStatistics.getHomeBestPlayers());
 		awayStatsPanel.updateStats(liveMatchStatistics.getAwayPoints(), liveMatchStatistics.getAwayRebounds(),
 				liveMatchStatistics.getAwayAssists(), liveMatchStatistics.getAwayTurnovers(),
 				liveMatchStatistics.getAwayFgPercent(), liveMatchStatistics.getAwayThreePercent(),
-				liveMatchStatistics.getAwayBestPlayersText());
+				liveMatchStatistics.getAwayBestPlayers());
 
 		liveActionsPanel.updateRows(buildDisplayedRows(), buildCenterMessage());
 	}
