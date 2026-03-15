@@ -22,7 +22,12 @@ public class OpeningDashboard extends JPanel {
 	private JButton continueButton;
 
 	public OpeningDashboard() {
+		create();
 		organize();
+	}
+
+	private void create() {
+		continueButton = new JButton("Continuer");
 	}
 
 	private void organize() {
@@ -96,7 +101,6 @@ public class OpeningDashboard extends JPanel {
 		JPanel footer = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
 		footer.setOpaque(false);
 
-		continueButton = new JButton("Continuer");
 		footer.add(continueButton);
 
 		return footer;

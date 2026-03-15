@@ -36,15 +36,23 @@ public class SidebarPanel extends JPanel {
 	private JButton[] menuButtons;
 
 	public SidebarPanel() {
+		create();
+		organize();
+	}
+
+	private void create() {
+		menuButtons = new JButton[] { matchButton, calendarButton, rankingButton, financeButton, mapButton };
+		initializeHighlightStrategies();
+	}
+
+	private void organize() {
 		setLayout(new BorderLayout());
 		setPreferredSize(new Dimension(240, 0));
 		setBackground(SIDEBAR_BACKGROUND_COLOR);
-		menuButtons = new JButton[] { matchButton, calendarButton, rankingButton, financeButton, mapButton };
 
 		add(buildTopSection(), BorderLayout.NORTH);
 		add(buildMenuSection(), BorderLayout.CENTER);
 		add(buildBottomSection(), BorderLayout.SOUTH);
-		initializeHighlightStrategies();
 	}
 
 	private JPanel buildTopSection() {

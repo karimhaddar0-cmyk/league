@@ -26,6 +26,8 @@ public class MainGui extends JFrame {
 	private JPanel rootPanel;
 	private CardLayout dashboardLayout;
 	private JPanel dashboardPanel;
+	private OpeningDashboard openingPanel;
+	private JPanel mainPanel;
 	private CalendarDashboard calendarDashboard;
 	private MatchDashboard matchDashboard;
 	private LiveMatchDashboard liveMatchDashboard;
@@ -33,6 +35,12 @@ public class MainGui extends JFrame {
 	private SidebarPanel sidebar;
 
 	public MainGui() {
+		create();
+		organize();
+		actions();
+	}
+
+	private void create() {
 		setTitle("NBA League");
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 
@@ -42,13 +50,13 @@ public class MainGui extends JFrame {
 		dashboardLayout = new CardLayout();
 		dashboardPanel = new JPanel(dashboardLayout);
 
-		OpeningDashboard openingPanel = new OpeningDashboard();
-		JPanel mainPanel = buildApplicationPanel();
+		openingPanel = new OpeningDashboard();
+		mainPanel = buildApplicationPanel();
+	}
 
+	private void organize() {
 		rootPanel.add(openingPanel, "opening");
 		rootPanel.add(mainPanel, "main");
-
-		openingPanel.getContinueButton().addActionListener(new OpenApplicationAction(openingPanel));
 
 		setLayout(new BorderLayout());
 		add(rootPanel, BorderLayout.CENTER);
@@ -60,6 +68,10 @@ public class MainGui extends JFrame {
 		setExtendedState(JFrame.MAXIMIZED_BOTH);
 		setLocationRelativeTo(null);
 		setVisible(true);
+	}
+
+	private void actions() {
+		openingPanel.getContinueButton().addActionListener(new OpenApplicationAction(openingPanel));
 	}
 
 	private JPanel buildApplicationPanel() {

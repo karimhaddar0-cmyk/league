@@ -30,12 +30,17 @@ public class CalendarDashboard extends JPanel {
 	private static final Color IDEAL_DASHBOARD_BACKGROUND_COLOR = new Color(247, 248, 250);
 	private static final Color SECONDARY_TEXT_COLOR = new Color(0x6D, 0x75, 0x83);
 	private final SimulationManager simulationManager;
-	private final CalendarSimulationPanel calendarSimulationPanel;
-	private final SeasonProgressBarPanel seasonProgressBarPanel;
+	private CalendarSimulationPanel calendarSimulationPanel;
+	private SeasonProgressBarPanel seasonProgressBarPanel;
 
 
 	public CalendarDashboard(SimulationManager simulationManager, MatchDashboard matchDashboard, Runnable showMatchDashboardAction) {
 		this.simulationManager = simulationManager;
+		create(matchDashboard, showMatchDashboardAction);
+		organize();
+	}
+
+	private void create(MatchDashboard matchDashboard, Runnable showMatchDashboardAction) {
 		calendarSimulationPanel = new CalendarSimulationPanel(simulationManager);
 		calendarSimulationPanel.setMatchDaySelectionListener(new OpenMatchDayListener(matchDashboard, showMatchDashboardAction));
 		seasonProgressBarPanel = new SeasonProgressBarPanel(
@@ -43,17 +48,23 @@ public class CalendarDashboard extends JPanel {
 				SimulationConfiguration.REGULAR_SEASON_END_DATE,
 				SimulationConfiguration.REGULAR_SEASON_DEBUT_DATE);
 		calendarSimulationPanel.setSeasonProgressBarPanel(seasonProgressBarPanel);
+	}
 
+	private void organize() {
 		setLayout(new BorderLayout());
 		setBackground(IDEAL_DASHBOARD_BACKGROUND_COLOR);
 
+		JPanel content = buildContentPanel();
+		content.add(buildHeader(), BorderLayout.NORTH);
+		content.add(buildBody(), BorderLayout.CENTER);
+		add(content, BorderLayout.CENTER);
+	}
+
+	private JPanel buildContentPanel() {
 		JPanel content = new JPanel(new BorderLayout(IDEAL_DASHBOARD_SPACING, IDEAL_DASHBOARD_SPACING));
 		content.setOpaque(false);
 		content.setBorder(BorderFactory.createEmptyBorder(0, IDEAL_DASHBOARD_SPACING, IDEAL_DASHBOARD_SPACING, IDEAL_DASHBOARD_SPACING));
-		add(content, BorderLayout.CENTER);
-
-		content.add(buildHeader(), BorderLayout.NORTH);
-		content.add(buildBody(), BorderLayout.CENTER);
+		return content;
 	}
 
 	public void startSeason() {
@@ -77,28 +88,23 @@ public class CalendarDashboard extends JPanel {
 	private JPanel buildBody() {
 		JPanel body = new JPanel(new BorderLayout(IDEAL_DASHBOARD_SPACING, IDEAL_DASHBOARD_SPACING));
 		body.setOpaque(false);
-
-		JPanel leftColumn = buildLeftColumn();
-		JPanel rightColumn = buildRightColumn();
-		rightColumn.setPreferredSize(new Dimension(IDEAL_DASHBOARD_RIGHT_COLUMN_WIDTH, 10));
-
-		body.add(leftColumn, BorderLayout.CENTER);
-		body.add(rightColumn, BorderLayout.EAST);
+		body.add(buildCenterColumn(), BorderLayout.CENTER);
+		body.add(buildRightColumn(), BorderLayout.EAST);
 		return body;
 	}
 
-	private JPanel buildLeftColumn() {
-		JPanel column = new JPanel(new BorderLayout(0, 12));
-		column.setOpaque(false);
+	private JPanel buildCenterColumn() {
+		JPanel centerColumn = new JPanel(new BorderLayout(0, 12));
+		centerColumn.setOpaque(false);
 
 		JPanel progressCard = new BuildBox("PROGRESSION DE LA SAISON", "", buildSeasonProgressPanel());
 		progressCard.setPreferredSize(new Dimension(10, 110));
 
 		JPanel matchDaysCard = new BuildBox("JOURS DE MATCH", "", buildMatchDaysPanel());
 
-		column.add(progressCard, BorderLayout.NORTH);
-		column.add(matchDaysCard, BorderLayout.CENTER);
-		return column;
+		centerColumn.add(progressCard, BorderLayout.NORTH);
+		centerColumn.add(matchDaysCard, BorderLayout.CENTER);
+		return centerColumn;
 	}
 
 	private JPanel buildSeasonProgressPanel() {
@@ -108,6 +114,7 @@ public class CalendarDashboard extends JPanel {
 	private JPanel buildRightColumn() {
 		JPanel column = new JPanel(new GridLayout(2, 1, 0, 12));
 		column.setOpaque(false);
+		column.setPreferredSize(new Dimension(IDEAL_DASHBOARD_RIGHT_COLUMN_WIDTH, 10));
 
 		JPanel actionsCard = new BuildBox("ACTIONS RAPIDES", "", new CalendarQuickActionsPanel(
 				new SimulateDayAction(),
@@ -119,7 +126,6 @@ public class CalendarDashboard extends JPanel {
 		column.add(infoCard);
 		return column;
 	}
-
 
 	private JPanel buildMatchDaysPanel() {
 		return calendarSimulationPanel;
