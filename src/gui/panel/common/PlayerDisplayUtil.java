@@ -6,20 +6,14 @@ import data.player.Player;
 public class PlayerDisplayUtil {
 
 	public static Asset getDisplayedAssets(Player player, boolean currentSeasonSelected) {
-		if (!currentSeasonSelected) {
-			return player.getPreSeasonAssets();
-		}
-		if (player.getCurrentSeasonAssets().getMinutesPlayedPerMatch() > 0) {
+		if (currentSeasonSelected) {
 			return player.getCurrentSeasonAssets();
 		}
 		return player.getPreSeasonAssets();
 	}
 
 	public static double getDisplayedNote(Player player) {
-		if (player.getCurrentSeasonAssets().getNote() > 0) {
-			return player.getCurrentSeasonAssets().getNote();
-		}
-		return player.getPreSeasonAssets().getNote();
+		return player.getCurrentSeasonAssets().getNote();
 	}
 
 	public static String formatOneDecimal(double value) {

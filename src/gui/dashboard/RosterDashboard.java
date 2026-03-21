@@ -36,7 +36,6 @@ public class RosterDashboard extends JPanel {
 	private TeamLogoPanel teamLogoPanel;
 	private JLabel playersCountValueLabel;
 	private JLabel payrollValueLabel;
-	private JLabel averageNoteValueLabel;
 	private JLabel averagePointsValueLabel;
 	private TeamRosterPanel rosterPanel;
 
@@ -57,7 +56,6 @@ public class RosterDashboard extends JPanel {
 		teamLogoPanel = new TeamLogoPanel("", 56);
 		playersCountValueLabel = new JLabel("-");
 		payrollValueLabel = new JLabel("-");
-		averageNoteValueLabel = new JLabel("-");
 		averagePointsValueLabel = new JLabel("-");
 		rosterPanel = new TeamRosterPanel();
 
@@ -139,11 +137,10 @@ public class RosterDashboard extends JPanel {
 	}
 
 	private JPanel buildSummaryPanel() {
-		JPanel summaryPanel = new JPanel(new java.awt.GridLayout(1, 4, DASHBOARD_SPACING, 0));
+		JPanel summaryPanel = new JPanel(new java.awt.GridLayout(1, 3, DASHBOARD_SPACING, 0));
 		summaryPanel.setOpaque(false);
 		summaryPanel.add(buildMetricCard("Joueurs", playersCountValueLabel));
 		summaryPanel.add(buildMetricCard("Masse salariale", payrollValueLabel));
-		summaryPanel.add(buildMetricCard("Note moyenne", averageNoteValueLabel));
 		summaryPanel.add(buildMetricCard("PPG moyen", averagePointsValueLabel));
 		return summaryPanel;
 	}
@@ -195,7 +192,6 @@ public class RosterDashboard extends JPanel {
 			subtitleLabel.setText("-");
 			playersCountValueLabel.setText("-");
 			payrollValueLabel.setText("-");
-			averageNoteValueLabel.setText("-");
 			averagePointsValueLabel.setText("-");
 			rosterPanel.updateTeam(null, currentSeasonSelected);
 			return;
@@ -207,22 +203,8 @@ public class RosterDashboard extends JPanel {
 		playersCountValueLabel.setText(String.valueOf(selectedTeam.getPlayers().size()));
 		FinanceUtilitary.updateTeamPayroll(selectedTeam);
 		payrollValueLabel.setText(PlayerDisplayUtil.formatSalary(selectedTeam.getTeamFinance().getPayroll()));
-		averageNoteValueLabel.setText(PlayerDisplayUtil.formatOneDecimal(computeAverageNote()) + "/100");
 		averagePointsValueLabel.setText(PlayerDisplayUtil.formatOneDecimal(computeAveragePoints()));
 		rosterPanel.updateTeam(selectedTeam, currentSeasonSelected);
-	}
-
-	private double computeAverageNote() {
-		ArrayList<Player> players = new ArrayList<Player>(selectedTeam.getPlayers().values());
-		if (players.isEmpty()) {
-			return 0;
-		}
-
-		double total = 0;
-		for (Player player : players) {
-			total += PlayerDisplayUtil.getDisplayedAssets(player, currentSeasonSelected).getNote();
-		}
-		return total / players.size();
 	}
 
 	private double computeAveragePoints() {

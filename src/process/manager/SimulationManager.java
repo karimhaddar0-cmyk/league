@@ -65,7 +65,6 @@ public class SimulationManager {
     // méthode à utiliser pour lancer la saison
     public void startSeason() {
         leagueManager.startSeason();
-        simulateCurrentSeason();
         resetCalendarCursor();
     }
 
@@ -115,6 +114,22 @@ public class SimulationManager {
 
     }
 
+    private void simulateUpTo(LocalDate targetDate) {
+        if (targetDate == null || targetDate.isBefore(date)) {
+            return;
+        }
+
+        while (!date.isAfter(targetDate)) {
+            verifyMonth();
+            verifyWeek();
+            simulateDay();
+            if (date.equals(targetDate)) {
+                break;
+            }
+            nextDay();
+        }
+    }
+
     // simuler la fin de saison régulière ou fin playoff
     public void simulateCurrentSeason() {
         if (CalendarUtilitary.checkDate(date, CalendarConfiguration.REGULAR_SEASON_DEBUT_DATE,
@@ -143,6 +158,7 @@ public class SimulationManager {
         if (date == null) {
             return;
         }
+        simulateUpTo(date);
         GameDay gameDay = leagueManager.getLeague().getReagularSeason().getCalendar().getCalendar().get(date);
         if (gameDay != null) {
             gameDay.setDisplayed(true);
@@ -164,11 +180,8 @@ public class SimulationManager {
     public void displayCurrentSeason() {
         TreeMap<LocalDate, GameDay> calendar = leagueManager.getLeague().getReagularSeason().getCalendar()
                 .getCalendar();
-        for (GameDay gameDay : calendar.values()) {
-            gameDay.setDisplayed(true);
-            for (Game game : gameDay.getGames()) {
-                game.setDisplayed(true);
-            }
+        for (LocalDate gameDate : calendar.keySet()) {
+            displayGameDay(gameDate);
         }
     }
 
