@@ -1,5 +1,4 @@
 package gui.dashboard;
-import config.GameConfiguration;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -7,16 +6,15 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.time.LocalDate;
-import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
-import data.player.Player;
 import data.sport.play.action.ActionResult;
 import data.sport.setup.Game;
-import data.sport.setup.GameResult;
+import gui.management.LiveAction;
+import gui.management.LiveMatchManager;
 import gui.management.LiveMatchStatistics;
 import gui.panel.common.BuildBox;
 import gui.panel.matchPanel.liveMatchPanel.LiveActionsPanel;
@@ -25,29 +23,14 @@ import gui.panel.matchPanel.liveMatchPanel.LiveTeamStatsPanel;
 import process.manager.LeagueManager;
 import process.visitor.actionresult.LiveActionTextVisitor;
 
-public class LiveMatchDashboard extends JPanel implements Runnable {
+public class LiveMatchDashboard extends JPanel {
 	private static final int DASHBOARD_SPACING = 16;
 	private static final int SIDE_COLUMN_WIDTH = 270;
 	private static final int LIVE_ROWS = 10;
-	private static final int CHRONO_SPEED = 200;
-	private static final int GAME_SECONDS_PER_TICK = 2;
 	private static final Color BACKGROUND_COLOR = new Color(247, 248, 250);
 
 	private Runnable backToMatchAction;
-	private LeagueManager leagueManager;
-	private LocalDate gameDate;
-	private Game game;
-	private String homeTeamName;
-	private String awayTeamName;
-
-	private ArrayList<LiveMatchStatistics.LiveAction> liveActions;
-	private int liveActionIndex;
-	private LiveMatchStatistics liveMatchStatistics;
-	private Thread liveThread;
-	private boolean stop;
-	private int displayedQuarter;
-	private int displayedRemainingTimeSeconds;
-	private int currentActionRemainingTimeSeconds;
+	private LiveMatchManager liveMatchManager;
 
 	private LiveMatchHeaderPanel headerPanel;
 	private LiveActionsPanel liveActionsPanel;
@@ -58,19 +41,12 @@ public class LiveMatchDashboard extends JPanel implements Runnable {
 		create();
 		organize();
 		actions();
-		resetLiveState();
 		updateLiveDashboard();
 	}
 
 	private void create() {
-		homeTeamName = "HOME";
-		awayTeamName = "AWAY";
-		liveActions = new ArrayList<LiveMatchStatistics.LiveAction>();
-		liveMatchStatistics = new LiveMatchStatistics();
-		stop = true;
-		displayedQuarter = 1;
-		displayedRemainingTimeSeconds = GameConfiguration.QUARTER_DURATION;
-		currentActionRemainingTimeSeconds = 0;
+		liveMatchManager = new LiveMatchManager();
+		liveMatchManager.setRefreshAction(new RefreshAction());
 		headerPanel = new LiveMatchHeaderPanel();
 		liveActionsPanel = new LiveActionsPanel(LIVE_ROWS);
 		homeStatsPanel = new LiveTeamStatsPanel();
@@ -140,141 +116,18 @@ public class LiveMatchDashboard extends JPanel implements Runnable {
 	}
 
 	public void setSimulationContext(LeagueManager leagueManager, LocalDate gameDate) {
-		this.leagueManager = leagueManager;
-		this.gameDate = gameDate;
+		liveMatchManager.setSimulationContext(leagueManager, gameDate);
 	}
 
 	public void setGame(Game game) {
-		stopLiveReading();
-		this.game = game;
-		if (game == null) {
-			homeTeamName = "HOME";
-			awayTeamName = "AWAY";
-		} else {
-			homeTeamName = game.getGameContext().getHomeTeam().getName();
-			awayTeamName = game.getGameContext().getAwayTeam().getName();
-		}
-		liveMatchStatistics.setGame(game);
-		buildLiveActions();
-		resetLiveState();
-		updateLiveDashboard();
-	}
-
-	private void buildLiveActions() {
-		liveActions.clear();
-		if (game == null || game.getQuarterResults() == null) {
-			return;
-		}
-		GameResult[] quarterResults = game.getQuarterResults();
-		for (int quarterIndex = 0; quarterIndex < quarterResults.length; quarterIndex++) {
-			GameResult quarter = quarterResults[quarterIndex];
-			if (quarter == null || quarter.getActions() == null) {
-				continue;
-			}
-			int remainingTime = GameConfiguration.QUARTER_DURATION;
-			for (ActionResult action : quarter.getActions()) {
-				remainingTime -= action.getActionTime();
-				if (remainingTime < 0) {
-					remainingTime = 0;
-				}
-				liveActions.add(new LiveMatchStatistics.LiveAction(quarterIndex + 1, action, remainingTime));
-			}
-		}
-	}
-
-	private void playNextAction() {
-		if (!isMatchAvailable()) {
-			stopLiveReading();
-			updateLiveDashboard();
-			return;
-		}
-		if (liveActionIndex >= liveActions.size()) {
-			revealCurrentGame();
-			stopLiveReading();
-			updateLiveDashboard();
-			return;
-		}
-
-		LiveMatchStatistics.LiveAction liveAction = liveActions.get(liveActionIndex);
-		liveMatchStatistics.applyAction(liveAction.getAction());
-		liveActionIndex++;
-		displayedQuarter = liveAction.getQuarter();
-		displayedRemainingTimeSeconds = liveAction.getRemainingTimeSeconds();
-		if (liveActionIndex >= liveActions.size()) {
-			revealCurrentGame();
-			stopLiveReading();
-		} else {
-			LiveMatchStatistics.LiveAction nextAction = liveActions.get(liveActionIndex);
-			currentActionRemainingTimeSeconds = Math.max(1, nextAction.getAction().getActionTime());
-			if (nextAction.getQuarter() != displayedQuarter) {
-				displayedQuarter = nextAction.getQuarter();
-				displayedRemainingTimeSeconds = GameConfiguration.QUARTER_DURATION;
-			}
-		}
-		updateLiveDashboard();
-	}
-
-	private void playCurrentQuarter() {
-		if (!isMatchAvailable() || liveActionIndex >= liveActions.size()) {
-			return;
-		}
-		int quarterToPlay = liveActions.get(liveActionIndex).getQuarter();
-		while (liveActionIndex < liveActions.size() && liveActions.get(liveActionIndex).getQuarter() == quarterToPlay) {
-			playNextAction();
-		}
-	}
-
-	private void startLiveReading() {
-		if (!isMatchAvailable() || !stop) {
-			return;
-		}
-		stop = false;
-		if (liveActionIndex < liveActions.size()) {
-			LiveMatchStatistics.LiveAction currentAction = liveActions.get(liveActionIndex);
-			displayedQuarter = currentAction.getQuarter();
-			if (liveActionIndex == 0) {
-				displayedRemainingTimeSeconds = GameConfiguration.QUARTER_DURATION;
-			}
-			currentActionRemainingTimeSeconds = Math.max(1, currentAction.getAction().getActionTime());
-		}
-		liveThread = new Thread(this, "live-match-thread");
-		liveThread.start();
-	}
-
-	private void stopLiveReading() {
-		stop = true;
-		if (liveThread != null) {
-			liveThread.interrupt();
-			liveThread = null;
-		}
-	}
-
-	public void run() {
-		while (!stop) {
-			try {
-				Thread.sleep(CHRONO_SPEED);
-			} catch (InterruptedException e) {
-				System.out.println(e.getMessage());
-			}
-			decrementChronometer();
-			if (!stop) {
-				SwingUtilities.invokeLater(new UpdateValuesRunnable());
-			}
-		}
-	}
-
-	private void resetLiveState() {
-		liveActionIndex = 0;
-		liveMatchStatistics.reset();
-		displayedQuarter = 1;
-		displayedRemainingTimeSeconds = GameConfiguration.QUARTER_DURATION;
-		currentActionRemainingTimeSeconds = liveActions.isEmpty() ? 0
-				: Math.max(1, liveActions.get(0).getAction().getActionTime());
+		liveMatchManager.setGame(game);
 	}
 
 	private void updateLiveDashboard() {
-		headerPanel.updateHeader(homeTeamName, awayTeamName, liveMatchStatistics.getHomePoints(),
-				liveMatchStatistics.getAwayPoints(), buildQuarterLabel(), buildQuarterTimeText());
+		LiveMatchStatistics liveMatchStatistics = liveMatchManager.getLiveMatchStatistics();
+		headerPanel.updateHeader(liveMatchManager.getHomeTeamName(), liveMatchManager.getAwayTeamName(),
+				liveMatchStatistics.getHomePoints(), liveMatchStatistics.getAwayPoints(),
+				buildQuarterLabel(), buildQuarterTimeText());
 
 		homeStatsPanel.updateStats(liveMatchStatistics.getHomePoints(), liveMatchStatistics.getHomeRebounds(),
 				liveMatchStatistics.getHomeAssists(), liveMatchStatistics.getHomeTurnovers(),
@@ -289,22 +142,20 @@ public class LiveMatchDashboard extends JPanel implements Runnable {
 	}
 
 	private String buildQuarterLabel() {
-		if (!isMatchAvailable()) {
+		if (!liveMatchManager.isMatchAvailable()) {
 			return "Q-";
 		}
-		if (liveActionIndex >= liveActions.size()) {
+		if (liveMatchManager.getLiveActionIndex() >= liveMatchManager.getLiveActions().size()) {
 			return "FIN";
 		}
-		return "Q" + displayedQuarter;
+		return "Q" + liveMatchManager.getDisplayedQuarter();
 	}
 
 	private String buildQuarterTimeText() {
-		if (!isMatchAvailable()) {
+		if (!liveMatchManager.isMatchAvailable()) {
 			return "--:--";
 		}
-		int min = displayedRemainingTimeSeconds / 60;
-		int sec = displayedRemainingTimeSeconds % 60;
-		return String.format("%d:%02d", min, sec);
+		return formatTime(liveMatchManager.getDisplayedRemainingTimeSeconds());
 	}
 
 	private String[] buildDisplayedRows() {
@@ -312,74 +163,48 @@ public class LiveMatchDashboard extends JPanel implements Runnable {
 		for (int i = 0; i < LIVE_ROWS; i++) {
 			rows[i] = " ";
 		}
-		if (!isMatchAvailable()) {
+		if (!liveMatchManager.isMatchAvailable()) {
 			return rows;
 		}
-		int startIndex = Math.max(0, liveActionIndex - LIVE_ROWS);
-		int rowIndex = LIVE_ROWS - (liveActionIndex - startIndex);
-		for (int actionIndex = startIndex; actionIndex < liveActionIndex; actionIndex++) {
-			rows[rowIndex] = buildActionLabel(liveActions.get(actionIndex));
+		int startIndex = Math.max(0, liveMatchManager.getLiveActionIndex() - LIVE_ROWS);
+		int rowIndex = LIVE_ROWS - (liveMatchManager.getLiveActionIndex() - startIndex);
+		for (int actionIndex = startIndex; actionIndex < liveMatchManager.getLiveActionIndex(); actionIndex++) {
+			rows[rowIndex] = buildActionLabel(liveMatchManager.getLiveActions().get(actionIndex));
 			rowIndex++;
 		}
 		return rows;
 	}
 
-	private class UpdateValuesRunnable implements Runnable {
-		@Override
-		public void run() {
-			updateValues();
-		}
-	}
-
 	private String buildCenterMessage() {
-		if (game == null) {
-			return "Aucun match sélectionné.";
+		if (liveMatchManager.getGame() == null) {
+			return "Aucun match selectionne.";
 		}
-		if (!isMatchAvailable()) {
+		if (!liveMatchManager.isMatchAvailable()) {
 			return "Match non disponible.";
 		}
-		if (liveActionIndex == 0) {
+		if (liveMatchManager.getLiveActionIndex() == 0) {
 			return "Clique sur Play pour lancer le match.";
 		}
 		return "";
 	}
 
-	private String buildActionLabel(LiveMatchStatistics.LiveAction liveAction) {
+	private String buildActionLabel(LiveAction liveAction) {
 		ActionResult action = liveAction.getAction();
-		int remaining = liveAction.getRemainingTimeSeconds();
-		int min = remaining / 60;
-		int sec = remaining % 60;
-		return "Q" + liveAction.getQuarter() + " " + String.format("%d:%02d", min, sec) + " - "
-				+ action.accept(new LiveActionTextVisitor(game, homeTeamName, awayTeamName));
+		return "Q" + liveAction.getQuarter() + " " + formatTime(liveAction.getRemainingTimeSeconds()) + " - "
+				+ action.accept(new LiveActionTextVisitor(liveMatchManager.getGame(),
+						liveMatchManager.getHomeTeamName(), liveMatchManager.getAwayTeamName()));
 	}
 
-	private boolean isGameSimulated(Game game) {
-		if (game == null || game.getQuarterResults() == null || game.getQuarterResults().length == 0) {
-			return false;
-		}
-		for (GameResult quarterResult : game.getQuarterResults()) {
-			if (quarterResult == null || quarterResult.getActions() == null || quarterResult.getActions().isEmpty()) {
-				return false;
-			}
-		}
-		return true;
-	}
-
-	private boolean isMatchAvailable() {
-		return isGameSimulated(game) && !liveActions.isEmpty();
-	}
-
-	private void revealCurrentGame() {
-		if (game == null) {
-			return;
-		}
-		game.setDisplayed(true);
+	private String formatTime(int remainingTimeSeconds) {
+		int min = remainingTimeSeconds / 60;
+		int sec = remainingTimeSeconds % 60;
+		return String.format("%d:%02d", min, sec);
 	}
 
 	private class BackAction implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			stopLiveReading();
+			liveMatchManager.pause();
 			if (backToMatchAction != null) {
 				backToMatchAction.run();
 			}
@@ -389,58 +214,35 @@ public class LiveMatchDashboard extends JPanel implements Runnable {
 	private class PlayAction implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			if (!isMatchAvailable()) {
-				updateLiveDashboard();
-				return;
-			}
-			if (liveActionIndex >= liveActions.size()) {
-				resetLiveState();
-				updateLiveDashboard();
-			}
-			startLiveReading();
+			liveMatchManager.play();
 		}
 	}
 
 	private class PlayQuarterAction implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			stopLiveReading();
-			playCurrentQuarter();
+			liveMatchManager.playCurrentQuarter();
 		}
 	}
 
 	private class PauseAction implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			stopLiveReading();
+			liveMatchManager.pause();
 		}
 	}
 
-	private void decrementChronometer() {
-		if (stop || !isMatchAvailable() || liveActionIndex >= liveActions.size()) {
-			stopLiveReading();
-			return;
+	private class RefreshAction implements Runnable {
+		@Override
+		public void run() {
+			SwingUtilities.invokeLater(new UpdateDashboardAction());
 		}
-		if (displayedRemainingTimeSeconds > 0) {
-			displayedRemainingTimeSeconds -= GAME_SECONDS_PER_TICK;
-			if (displayedRemainingTimeSeconds < 0) {
-				displayedRemainingTimeSeconds = 0;
-			}
-		}
-		currentActionRemainingTimeSeconds -= GAME_SECONDS_PER_TICK;
 	}
 
-	private void updateValues() {
-		if (stop || !isMatchAvailable() || liveActionIndex >= liveActions.size()) {
-			stopLiveReading();
+	private class UpdateDashboardAction implements Runnable {
+		@Override
+		public void run() {
 			updateLiveDashboard();
-			return;
 		}
-		if (currentActionRemainingTimeSeconds <= 0) {
-			playNextAction();
-			return;
-		}
-		updateLiveDashboard();
 	}
-	
 }

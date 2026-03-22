@@ -8,7 +8,7 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 
-import gui.management.LiveMatchStatistics.PlayerLiveSummary;
+import gui.management.PlayerLiveSummary;
 import gui.panel.common.SectionTitle;
 import gui.panel.mapPanel.effectifPanel.playerPanel.PlayerSummaryPanel;
 

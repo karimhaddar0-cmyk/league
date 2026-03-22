@@ -1,19 +1,10 @@
 package gui.management;
-import config.GameConfiguration;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
 import data.player.Player;
 import data.sport.play.action.ActionResult;
-import data.sport.play.action.Block;
-import data.sport.play.action.EndOfTime;
-import data.sport.play.action.MissedShot;
-import data.sport.play.action.PointScored;
-import data.sport.play.action.Rebound;
-import data.sport.play.action.Turnover;
 import data.sport.setup.Game;
-import process.visitor.actionresult.ActionResultVisitor;
 import process.visitor.actionresult.StatsVisitor;
 
 public class LiveMatchStatistics {
@@ -76,59 +67,6 @@ public class LiveMatchStatistics {
 		action.accept(new StatsVisitor(this));
 	}
 
-	public SavedLiveState toSavedState(int liveActionIndex) {
-		SavedLiveState state = new SavedLiveState();
-		state.liveActionIndex = liveActionIndex;
-		state.homePoints = homePoints;
-		state.awayPoints = awayPoints;
-		state.homeRebounds = homeRebounds;
-		state.awayRebounds = awayRebounds;
-		state.homeAssists = homeAssists;
-		state.awayAssists = awayAssists;
-		state.homeTurnovers = homeTurnovers;
-		state.awayTurnovers = awayTurnovers;
-		state.homeTwoMade = homeTwoMade;
-		state.awayTwoMade = awayTwoMade;
-		state.homeThreeMade = homeThreeMade;
-		state.awayThreeMade = awayThreeMade;
-		state.homeFgAttempts = homeFgAttempts;
-		state.awayFgAttempts = awayFgAttempts;
-		state.homeThreeAttempts = homeThreeAttempts;
-		state.awayThreeAttempts = awayThreeAttempts;
-		state.homePlayerPoints = new HashMap<String, Integer>(homePlayerPoints);
-		state.awayPlayerPoints = new HashMap<String, Integer>(awayPlayerPoints);
-		state.homePlayers = new HashMap<String, Player>(homePlayers);
-		state.awayPlayers = new HashMap<String, Player>(awayPlayers);
-		return state;
-	}
-
-	public void loadFromState(SavedLiveState state) {
-		homePoints = state.homePoints;
-		awayPoints = state.awayPoints;
-		homeRebounds = state.homeRebounds;
-		awayRebounds = state.awayRebounds;
-		homeAssists = state.homeAssists;
-		awayAssists = state.awayAssists;
-		homeTurnovers = state.homeTurnovers;
-		awayTurnovers = state.awayTurnovers;
-		homeTwoMade = state.homeTwoMade;
-		awayTwoMade = state.awayTwoMade;
-		homeThreeMade = state.homeThreeMade;
-		awayThreeMade = state.awayThreeMade;
-		homeFgAttempts = state.homeFgAttempts;
-		awayFgAttempts = state.awayFgAttempts;
-		homeThreeAttempts = state.homeThreeAttempts;
-		awayThreeAttempts = state.awayThreeAttempts;
-		homePlayerPoints.clear();
-		awayPlayerPoints.clear();
-		homePlayers.clear();
-		awayPlayers.clear();
-		homePlayerPoints.putAll(state.homePlayerPoints);
-		awayPlayerPoints.putAll(state.awayPlayerPoints);
-		homePlayers.putAll(state.homePlayers);
-		awayPlayers.putAll(state.awayPlayers);
-	}
-
 	public int getHomePoints() {
 		return homePoints;
 	}
@@ -177,28 +115,12 @@ public class LiveMatchStatistics {
 		return formatPercent(awayThreeMade, awayThreeAttempts);
 	}
 
-	public String getHomeBestPlayersText() {
-		return buildTopPlayersText(homePlayerPoints);
-	}
-
-	public String getAwayBestPlayersText() {
-		return buildTopPlayersText(awayPlayerPoints);
-	}
-
 	public PlayerLiveSummary[] getHomeBestPlayers() {
 		return buildTopPlayers(homePlayerPoints, homePlayers);
 	}
 
 	public PlayerLiveSummary[] getAwayBestPlayers() {
 		return buildTopPlayers(awayPlayerPoints, awayPlayers);
-	}
-
-	private int getPlayerPoints(HashMap<String, Integer> map, String playerName) {
-		Integer current = map.get(playerName);
-		if (current == null) {
-			return 0;
-		}
-		return current.intValue();
 	}
 
 	private String formatPercent(int made, int attempts) {
@@ -208,140 +130,22 @@ public class LiveMatchStatistics {
 		return (int) Math.round((made * 100.0) / attempts) + "%";
 	}
 
-	private void addTopPlayers(ArrayList<PlayerLiveSummary> summaries, HashMap<String, Integer> playerPoints,
-			HashMap<String, Player> players) {
+	private PlayerLiveSummary[] buildTopPlayers(HashMap<String, Integer> playerPoints, HashMap<String, Player> players) {
+		PlayerLiveSummary[] topPlayers = new PlayerLiveSummary[2];
 		for (String playerName : playerPoints.keySet()) {
 			Player player = players.get(playerName);
 			if (player == null) {
 				continue;
 			}
-			insertSummary(summaries, new PlayerLiveSummary(player, playerPoints.get(playerName).intValue()));
-		}
-	}
-
-	private PlayerLiveSummary[] buildTopPlayers(HashMap<String, Integer> playerPoints, HashMap<String, Player> players) {
-		ArrayList<PlayerLiveSummary> summaries = new ArrayList<PlayerLiveSummary>();
-		addTopPlayers(summaries, playerPoints, players);
-
-		PlayerLiveSummary[] topPlayers = new PlayerLiveSummary[2];
-		for (int i = 0; i < topPlayers.length && i < summaries.size(); i++) {
-			topPlayers[i] = summaries.get(i);
-		}
-		return topPlayers;
-	}
-
-	private void insertSummary(ArrayList<PlayerLiveSummary> summaries, PlayerLiveSummary summary) {
-		int index = 0;
-		while (index < summaries.size() && summaries.get(index).getPoints() >= summary.getPoints()) {
-			index++;
-		}
-		summaries.add(index, summary);
-		while (summaries.size() > 2) {
-			summaries.remove(summaries.size() - 1);
-		}
-	}
-
-	private String buildTopPlayersText(HashMap<String, Integer> players) {
-		String bestName = "-";
-		int bestPoints = 0;
-		String secondName = "-";
-		int secondPoints = 0;
-
-		for (String name : players.keySet()) {
-			int points = players.get(name).intValue();
-			if (points > bestPoints) {
-				secondName = bestName;
-				secondPoints = bestPoints;
-				bestName = name;
-				bestPoints = points;
-			} else if (points > secondPoints) {
-				secondName = name;
-				secondPoints = points;
+			int points = playerPoints.get(playerName).intValue();
+			if (topPlayers[0] == null || points > topPlayers[0].getPoints()) {
+				topPlayers[1] = topPlayers[0];
+				topPlayers[0] = new PlayerLiveSummary(player, points);
+			} else if (topPlayers[1] == null || points > topPlayers[1].getPoints()) {
+				topPlayers[1] = new PlayerLiveSummary(player, points);
 			}
 		}
-
-		if ("-".equals(bestName)) {
-			return "-";
-		}
-		if ("-".equals(secondName)) {
-			return "<html>" + bestName + " (" + bestPoints + " pts)</html>";
-		}
-		return "<html>" + bestName + " (" + bestPoints + " pts)<br>" + secondName + " (" + secondPoints
-				+ " pts)</html>";
-	}
-
-	public static class LiveAction {
-		private int quarter;
-		private ActionResult action;
-		private int remainingTimeSeconds;
-
-		public LiveAction(int quarter, ActionResult action, int remainingTimeSeconds) {
-			this.quarter = quarter;
-			this.action = action;
-			this.remainingTimeSeconds = remainingTimeSeconds;
-		}
-
-		public int getQuarter() {
-			return quarter;
-		}
-
-		public ActionResult getAction() {
-			return action;
-		}
-
-		public int getRemainingTimeSeconds() {
-			return remainingTimeSeconds;
-		}
-	}
-
-	public static class SavedLiveState {
-		int liveActionIndex;
-		int homePoints;
-		int awayPoints;
-		int homeRebounds;
-		int awayRebounds;
-		int homeAssists;
-		int awayAssists;
-		int homeTurnovers;
-		int awayTurnovers;
-		int homeTwoMade;
-		int awayTwoMade;
-		int homeThreeMade;
-		int awayThreeMade;
-		int homeFgAttempts;
-		int awayFgAttempts;
-		int homeThreeAttempts;
-		int awayThreeAttempts;
-		HashMap<String, Integer> homePlayerPoints;
-		HashMap<String, Integer> awayPlayerPoints;
-		HashMap<String, Player> homePlayers;
-		HashMap<String, Player> awayPlayers;
-
-		public int getLiveActionIndex() {
-			return liveActionIndex;
-		}
-
-		public void setLiveActionIndex(int liveActionIndex) {
-			this.liveActionIndex = liveActionIndex;
-		}
-	}
-
-	public static class PlayerLiveSummary {
-		private Player player;
-		private int points;
-
-		public PlayerLiveSummary(Player player, int points) {
-			this.player = player;
-			this.points = points;
-		}
-
-		public Player getPlayer() {
-			return player;
-		}
-
-		public int getPoints() {
-			return points;
-		}
+		return topPlayers;
 	}
 
 	public int getHomeTwoMade() {
