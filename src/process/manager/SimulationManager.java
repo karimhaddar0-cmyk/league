@@ -2,6 +2,7 @@ package process.manager;
 
 import java.time.LocalDate;
 import java.time.Month;
+import java.time.temporal.ChronoUnit;
 import java.util.TreeMap;
 
 import config.CalendarConfiguration;
@@ -92,7 +93,7 @@ public class SimulationManager {
     }
 
     private void verifyWeek() {
-        int daysBetween = (int) java.time.temporal.ChronoUnit.DAYS.between(debutWeekDate, date);
+        int daysBetween = (int) ChronoUnit.DAYS.between(debutWeekDate, date);
         int weeksBetween = daysBetween / 7;
         int newWeek = weeksBetween + 1;
         if (newWeek != week) {

@@ -52,6 +52,11 @@ public class LeagueManager {
         league.getLeagueFinance().getBudget().getInitialAmount();
     }
 
+    public void prepareOpeningData() {
+        simulationBuilder.build();
+        FinanceUtilitary.updateLeaguePayroll();
+    }
+
     private void simulatePreSeasonTrade() {
         tradeManager.simulatePreSeasonTrade(0);
     }

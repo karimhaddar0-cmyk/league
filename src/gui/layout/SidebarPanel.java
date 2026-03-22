@@ -10,6 +10,7 @@ import java.awt.event.ActionListener;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
@@ -59,7 +60,7 @@ public class SidebarPanel extends JPanel {
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 		panel.setBackground(SIDEBAR_BACKGROUND_COLOR);
-		panel.setBorder(javax.swing.BorderFactory.createEmptyBorder(20, 20, 20, 20));
+		panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
 		ImageIcon logoIcon = new ImageIcon("img/logo.png");
 		JLabel logoLabel = new JLabel(logoIcon);

@@ -1,10 +1,8 @@
 package gui.panel.common;
 
-import data.player.Asset;
-import data.player.Player;
-
 public class PlayerDisplayUtil {
 
+<<<<<<< HEAD
 	public static Asset getDisplayedAssets(Player player, boolean currentSeasonSelected) {
 		if (currentSeasonSelected) {
 			return player.getCurrentSeasonAssets();
@@ -16,6 +14,8 @@ public class PlayerDisplayUtil {
 		return player.getCurrentSeasonAssets().getNote();
 	}
 
+=======
+>>>>>>> main
 	public static String formatOneDecimal(double value) {
 		double roundedValue = Math.round(value * 10.0) / 10.0;
 		return String.valueOf(roundedValue);

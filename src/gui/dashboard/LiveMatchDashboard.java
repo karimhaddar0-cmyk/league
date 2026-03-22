@@ -13,14 +13,19 @@ import javax.swing.SwingUtilities;
 
 import data.sport.play.action.ActionResult;
 import data.sport.setup.Game;
+<<<<<<< HEAD
 import gui.management.LiveAction;
 import gui.management.LiveMatchManager;
 import gui.management.LiveMatchStatistics;
+=======
+import data.sport.setup.GameResult;
+>>>>>>> main
 import gui.panel.common.BuildBox;
 import gui.panel.matchPanel.liveMatchPanel.LiveActionsPanel;
 import gui.panel.matchPanel.liveMatchPanel.LiveMatchHeaderPanel;
 import gui.panel.matchPanel.liveMatchPanel.LiveTeamStatsPanel;
 import process.manager.LeagueManager;
+import process.manager.LiveMatchStatistics;
 import process.visitor.actionresult.LiveActionTextVisitor;
 
 public class LiveMatchDashboard extends JPanel {
@@ -124,11 +129,31 @@ public class LiveMatchDashboard extends JPanel {
 	}
 
 	private void updateLiveDashboard() {
+<<<<<<< HEAD
 		LiveMatchStatistics liveMatchStatistics = liveMatchManager.getLiveMatchStatistics();
 		headerPanel.updateHeader(liveMatchManager.getHomeTeamName(), liveMatchManager.getAwayTeamName(),
 				liveMatchStatistics.getHomePoints(), liveMatchStatistics.getAwayPoints(),
 				buildQuarterLabel(), buildQuarterTimeText());
+=======
+		updateHeaderPanel();
+		updateStatsPanels();
+		updateActionsPanel();
+	}
+>>>>>>> main
 
+	private void updateHeaderPanel() {
+		if (game == null) {
+			headerPanel.updateHeader(null, null,
+					liveMatchStatistics.getHomePoints(), liveMatchStatistics.getAwayPoints(), buildQuarterLabel(),
+					buildQuarterTimeText());
+			return;
+		}
+		headerPanel.updateHeader(game.getGameContext().getHomeTeam(), game.getGameContext().getAwayTeam(),
+				liveMatchStatistics.getHomePoints(), liveMatchStatistics.getAwayPoints(), buildQuarterLabel(),
+				buildQuarterTimeText());
+	}
+
+	private void updateStatsPanels() {
 		homeStatsPanel.updateStats(liveMatchStatistics.getHomePoints(), liveMatchStatistics.getHomeRebounds(),
 				liveMatchStatistics.getHomeAssists(), liveMatchStatistics.getHomeTurnovers(),
 				liveMatchStatistics.getHomeFgPercent(), liveMatchStatistics.getHomeThreePercent(),
@@ -137,7 +162,9 @@ public class LiveMatchDashboard extends JPanel {
 				liveMatchStatistics.getAwayAssists(), liveMatchStatistics.getAwayTurnovers(),
 				liveMatchStatistics.getAwayFgPercent(), liveMatchStatistics.getAwayThreePercent(),
 				liveMatchStatistics.getAwayBestPlayers());
+	}
 
+	private void updateActionsPanel() {
 		liveActionsPanel.updateRows(buildDisplayedRows(), buildCenterMessage());
 	}
 

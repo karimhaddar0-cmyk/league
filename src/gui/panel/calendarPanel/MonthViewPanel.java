@@ -97,8 +97,8 @@ public class MonthViewPanel extends JPanel {
 			ArrayList<Game> displayedGames = getBestGames(gameDay.getGames(), date);
 			int matchCount = Math.min(3, displayedGames.size());
 			for (int i = 0; i < matchCount; i++) {
-				String homeTeam = TeamDisplayUtil.getAbbreviation(displayedGames.get(i).getGameContext().getHomeTeam().getName());
-				String awayTeam = TeamDisplayUtil.getAbbreviation(displayedGames.get(i).getGameContext().getAwayTeam().getName());
+				String homeTeam = TeamDisplayUtil.getAbbreviation(displayedGames.get(i).getGameContext().getHomeTeam());
+				String awayTeam = TeamDisplayUtil.getAbbreviation(displayedGames.get(i).getGameContext().getAwayTeam());
 				dayPanel.add(new JLabel(homeTeam + " vs " + awayTeam));
 			}
 

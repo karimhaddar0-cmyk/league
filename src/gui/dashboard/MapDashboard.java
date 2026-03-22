@@ -4,17 +4,21 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
 import javax.swing.JPanel;
 
 import data.team.Team;
 import gui.panel.common.BuildBox;
+import gui.panel.common.DashboardPanelUtil;
 import gui.panel.common.SectionTitle;
-import gui.panel.mapPanel.MapPanel;
+import gui.panel.common.TeamMapPanel;
 import gui.panel.mapPanel.effectifPanel.MapTeamPlayersPanel;
 import gui.panel.mapPanel.effectifPanel.MapTeamSummaryPanel;
 import process.manager.LeagueManager;
+import process.utilitary.TeamStatUtil;
 /**
  * Dashboard dédié à la page Carte.
  */
@@ -28,7 +32,7 @@ public class MapDashboard extends JPanel {
 	private LeagueManager leagueManager;
 	private ArrayList<Team> teams;
 	private Team selectedTeam;
-	private MapPanel mapPanel;
+	private TeamMapPanel mapPanel;
 	private MapTeamSummaryPanel teamSummaryPanel;
 	private MapTeamPlayersPanel teamPlayersPanel;
 	private Runnable openRosterAction;
@@ -47,7 +51,7 @@ public class MapDashboard extends JPanel {
 
 	private void create() {
 		teams = new ArrayList<Team>(leagueManager.getLeague().getAllTeam());
-		mapPanel = new MapPanel();
+		mapPanel = new TeamMapPanel();
 		teamSummaryPanel = new MapTeamSummaryPanel();
 		teamPlayersPanel = new MapTeamPlayersPanel();
 	}
@@ -63,10 +67,7 @@ public class MapDashboard extends JPanel {
 	}
 
 	private JPanel buildContentPanel() {
-		JPanel content = new JPanel(new BorderLayout(IDEAL_DASHBOARD_SPACING, IDEAL_DASHBOARD_SPACING));
-		content.setOpaque(false);
-		content.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, IDEAL_DASHBOARD_SPACING, IDEAL_DASHBOARD_SPACING, IDEAL_DASHBOARD_SPACING));
-		return content;
+		return DashboardPanelUtil.createContentPanel(IDEAL_DASHBOARD_SPACING);
 	}
 
 	private JPanel buildHeader(){
@@ -76,8 +77,7 @@ public class MapDashboard extends JPanel {
 	}
 
 	private JPanel buildBody() {
-		JPanel body = new JPanel(new BorderLayout(IDEAL_DASHBOARD_SPACING, IDEAL_DASHBOARD_SPACING));
-		body.setOpaque(false);
+		JPanel body = DashboardPanelUtil.createBodyPanel(IDEAL_DASHBOARD_SPACING, IDEAL_DASHBOARD_SPACING);
 		body.add(buildCenterColumn(), BorderLayout.CENTER);
 		body.add(buildRightColumn(), BorderLayout.EAST);
 		return body;
@@ -88,9 +88,7 @@ public class MapDashboard extends JPanel {
 	}
 
 	private JPanel buildRightColumn(){
-		JPanel column = new JPanel(new GridLayout(2, 1, 0, 12));
-		column.setOpaque(false);
-		column.setPreferredSize(new Dimension(IDEAL_DASHBOARD_RIGHT_COLUMN_WIDTH, 10));
+		JPanel column = DashboardPanelUtil.createGridColumn(2, 1, 0, 12, IDEAL_DASHBOARD_RIGHT_COLUMN_WIDTH);
 		
 		column.add(new BuildBox("Détails de l'équipe", "Informations détaillées sur l'équipe sélectionnée", teamSummaryPanel));
 		column.add(new BuildBox("Joueurs de l'équipe", "", teamPlayersPanel));
@@ -100,12 +98,7 @@ public class MapDashboard extends JPanel {
 
 	private void actions() {
 		teamSummaryPanel.getOpenRosterButton().addActionListener(new OpenRosterListener());
-		mapPanel.setTeamSelectionListener(new MapPanel.TeamSelectionListener() {
-			@Override
-			public void onTeamSelected(String teamName) {
-				setSelectedTeam(findTeamByName(teamName));
-			}
-		});
+		mapPanel.setTeamSelectionAction(new MapSelectionAction());
 	}
 
 	private void selectDefaultTeam() {
@@ -135,21 +128,19 @@ public class MapDashboard extends JPanel {
 		this.openRosterAction = openRosterAction;
 	}
 
-	private Team findTeamByName(String teamName) {
-		for (int i = 0; i < teams.size(); i++) {
-			if (teams.get(i).getName().equals(teamName)) {
-				return teams.get(i);
-			}
-		}
-		return null;
-	}
-
-	private class OpenRosterListener implements java.awt.event.ActionListener {
+	private class OpenRosterListener implements ActionListener {
 		@Override
-		public void actionPerformed(java.awt.event.ActionEvent e) {
+		public void actionPerformed(ActionEvent e) {
 			if (openRosterAction != null) {
 				openRosterAction.run();
 			}
+		}
+	}
+
+	private class MapSelectionAction implements Runnable {
+		@Override
+		public void run() {
+			setSelectedTeam(TeamStatUtil.findTeamByName(mapPanel.getSelectedTeamName()));
 		}
 	}
 }

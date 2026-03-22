@@ -9,8 +9,9 @@ import data.sport.play.action.PointScored;
 import data.sport.play.action.Rebound;
 import data.sport.play.action.Turnover;
 import data.sport.setup.Game;
-import gui.management.LiveMatchStatistics;
 import java.util.HashMap;
+
+import process.manager.LiveMatchStatistics;
 
 public class StatsVisitor implements ActionResultVisitor<Void> {
     private LiveMatchStatistics liveMatchStatistics;

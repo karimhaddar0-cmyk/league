@@ -4,6 +4,8 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
@@ -41,8 +43,8 @@ public class MatchDayEntryPanel extends JPanel {
 		textPanel.setBackground(Color.WHITE);
 		textPanel.setLayout(new BoxLayout(textPanel, BoxLayout.Y_AXIS));
 
-		textPanel.add(createTeamLabel(TeamDisplayUtil.getShortName(game.getGameContext().getHomeTeam().getName())));
-		textPanel.add(createOpponentLabel(TeamDisplayUtil.getShortName(game.getGameContext().getAwayTeam().getName())));
+		textPanel.add(createTeamLabel(TeamDisplayUtil.getShortName(game.getGameContext().getHomeTeam())));
+		textPanel.add(createOpponentLabel(TeamDisplayUtil.getShortName(game.getGameContext().getAwayTeam())));
 		textPanel.add(createStatusLabel(displayed ? "Terminé" : "À venir", displayed));
 		centerPanel.add(textPanel, BorderLayout.CENTER);
 
@@ -64,14 +66,7 @@ public class MatchDayEntryPanel extends JPanel {
 		detailButton.setContentAreaFilled(false);
 		detailButton.setForeground(TEXT_COLOR);
 		detailButton.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 24));
-		detailButton.addActionListener(new java.awt.event.ActionListener() {
-			@Override
-			public void actionPerformed(java.awt.event.ActionEvent e) {
-				if (matchSelectionListener != null) {
-					matchSelectionListener.onMatchDetail(game);
-				}
-			}
-		});
+		detailButton.addActionListener(new DetailButtonListener(game, matchSelectionListener));
 
 		add(centerPanel, BorderLayout.CENTER);
 		add(detailButton, BorderLayout.EAST);
@@ -140,6 +135,23 @@ public class MatchDayEntryPanel extends JPanel {
 
 		@Override
 		public void mouseExited(MouseEvent e) {
+		}
+	}
+
+	private class DetailButtonListener implements ActionListener {
+		private Game game;
+		private MatchDayListPanel.MatchSelectionListener matchSelectionListener;
+
+		private DetailButtonListener(Game game, MatchDayListPanel.MatchSelectionListener matchSelectionListener) {
+			this.game = game;
+			this.matchSelectionListener = matchSelectionListener;
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			if (matchSelectionListener != null) {
+				matchSelectionListener.onMatchDetail(game);
+			}
 		}
 	}
 }

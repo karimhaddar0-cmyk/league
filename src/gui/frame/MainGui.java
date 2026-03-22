@@ -54,7 +54,8 @@ public class MainGui extends JFrame {
 		dashboardLayout = new CardLayout();
 		dashboardPanel = new JPanel(dashboardLayout);
 
-		openingPanel = new OpeningDashboard();
+		simulationManager = new SimulationManager();
+		openingPanel = new OpeningDashboard(simulationManager.getLeagueManager());
 		mainPanel = buildApplicationPanel();
 	}
 
@@ -81,7 +82,6 @@ public class MainGui extends JFrame {
 	private JPanel buildApplicationPanel() {
 		JPanel mainPanel = new JPanel(new BorderLayout());
 		sidebar = new SidebarPanel();
-		simulationManager = new SimulationManager();
 
 		matchDashboard = new MatchDashboard(simulationManager.getLeagueManager());
 		liveMatchDashboard = new LiveMatchDashboard();

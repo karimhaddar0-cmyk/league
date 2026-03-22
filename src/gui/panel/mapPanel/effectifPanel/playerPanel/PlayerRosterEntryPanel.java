@@ -14,6 +14,7 @@ import data.player.Player;
 import data.player.Asset;
 import gui.panel.common.DashboardCard;
 import gui.panel.common.PlayerDisplayUtil;
+import process.utilitary.PlayerStatUtil;
 
 public class PlayerRosterEntryPanel extends DashboardCard {
 	private PlayerPortraitPanel portraitPanel;
@@ -90,7 +91,7 @@ public class PlayerRosterEntryPanel extends DashboardCard {
 	}
 
 	private String buildStatsText(Player player, boolean currentSeasonSelected) {
-		Asset assets = PlayerDisplayUtil.getDisplayedAssets(player, currentSeasonSelected);
+		Asset assets = PlayerStatUtil.getDisplayedAssets(player, currentSeasonSelected);
 		double points = assets.getPointPerMatch();
 		double assists = assets.getAssistPerMatch();
 		double rebounds = assets.getReboundPerMatch();

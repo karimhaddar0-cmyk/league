@@ -110,11 +110,19 @@ public class CalendarDashboard extends JPanel {
 	private void updateDashboardState() {
 		LocalDate currentDate = currentCalendarDate;
 		checkDisplayedMonth();
+		updateHeaderState();
+		updateCalendarPanels(currentDate);
+		updateCurrentCard();
+	}
+
+	private void updateHeaderState() {
 		headerPanel.setMonthText(MonthViewPanel.buildMonthText(displayedMonth));
 		headerPanel.setMonthViewSelected(monthViewSelected);
 		updateProgress();
+	}
+
+	private void updateCalendarPanels(LocalDate currentDate) {
 		updateMonthView(currentDate);
-		updateCurrentCard();
 	}
 
 	private void updateProgress() {

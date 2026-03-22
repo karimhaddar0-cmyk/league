@@ -6,19 +6,24 @@ import java.awt.GridLayout;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+<<<<<<< HEAD
 import gui.management.PlayerLiveSummary;
+=======
+>>>>>>> main
 import gui.panel.common.SectionTitle;
 import gui.panel.mapPanel.effectifPanel.playerPanel.PlayerSummaryPanel;
+import process.manager.LiveMatchStatistics.PlayerLiveSummary;
 
 public class LiveTeamStatsPanel extends JPanel {
-	private javax.swing.JLabel pointsLabel;
-	private javax.swing.JLabel reboundsLabel;
-	private javax.swing.JLabel assistsLabel;
-	private javax.swing.JLabel turnoversLabel;
-	private javax.swing.JLabel fgLabel;
-	private javax.swing.JLabel threeLabel;
+	private JLabel pointsLabel;
+	private JLabel reboundsLabel;
+	private JLabel assistsLabel;
+	private JLabel turnoversLabel;
+	private JLabel fgLabel;
+	private JLabel threeLabel;
 	private PlayerSummaryPanel firstBestPlayerPanel;
 	private PlayerSummaryPanel secondBestPlayerPanel;
 
@@ -34,12 +39,12 @@ public class LiveTeamStatsPanel extends JPanel {
 		JPanel statsPanel = new JPanel(new GridLayout(6, 1, 0, 6));
 		statsPanel.setOpaque(false);
 
-		pointsLabel = new javax.swing.JLabel("Points : 0");
-		reboundsLabel = new javax.swing.JLabel("Rebonds : 0");
-		assistsLabel = new javax.swing.JLabel("Passes : 0");
-		turnoversLabel = new javax.swing.JLabel("Turnovers : 0");
-		fgLabel = new javax.swing.JLabel("FG% : 0%");
-		threeLabel = new javax.swing.JLabel("3PT% : 0%");
+		pointsLabel = new JLabel("Points : 0");
+		reboundsLabel = new JLabel("Rebonds : 0");
+		assistsLabel = new JLabel("Passes : 0");
+		turnoversLabel = new JLabel("Turnovers : 0");
+		fgLabel = new JLabel("FG% : 0%");
+		threeLabel = new JLabel("3PT% : 0%");
 		firstBestPlayerPanel = new PlayerSummaryPanel();
 		secondBestPlayerPanel = new PlayerSummaryPanel();
 

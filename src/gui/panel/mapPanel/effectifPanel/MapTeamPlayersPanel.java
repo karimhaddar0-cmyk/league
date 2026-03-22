@@ -10,7 +10,7 @@ import javax.swing.JPanel;
 
 import data.player.Player;
 import data.team.Team;
-import gui.panel.common.PlayerDisplayUtil;
+import process.utilitary.PlayerStatUtil;
 
 public class MapTeamPlayersPanel extends JPanel {
 	private JLabel[] playerLabels;
@@ -47,29 +47,16 @@ public class MapTeamPlayersPanel extends JPanel {
 		}
 
 		ArrayList<Player> players = new ArrayList<Player>(team.getPlayers().values());
-		sortPlayersByNote(players);
+		PlayerStatUtil.sortPlayersByDisplayedNote(players);
 
 		for (int i = 0; i < playerLabels.length; i++) {
 			if (i < players.size()) {
 				Player player = players.get(i);
-				playerLabels[i].setText((int) Math.round(PlayerDisplayUtil.getDisplayedNote(player)) + "  " + player.getName());
+				playerLabels[i].setText((int) Math.round(PlayerStatUtil.getDisplayedNote(player)) + "  " + player.getName());
 			} else {
 				playerLabels[i].setText("-");
 			}
 		}
 	}
 
-	private void sortPlayersByNote(ArrayList<Player> players) {
-		for (int i = 0; i < players.size() - 1; i++) {
-			for (int j = i + 1; j < players.size(); j++) {
-				double firstNote = PlayerDisplayUtil.getDisplayedNote(players.get(i));
-				double secondNote = PlayerDisplayUtil.getDisplayedNote(players.get(j));
-				if (secondNote > firstNote) {
-					Player currentPlayer = players.get(i);
-					players.set(i, players.get(j));
-					players.set(j, currentPlayer);
-				}
-			}
-		}
-	}
 }

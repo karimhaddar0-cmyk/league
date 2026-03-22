@@ -56,7 +56,7 @@ public class LeagueBuilder {
 
 				if (divisionRepositery.getDivision(divisionName) == null) {
 					Division division = new Division(divisionName);
-					if (conferenceName.equals("West")) {
+					if (conferenceName.equals("Ouest")) {
 						league.addDivisionWesternConference(division);
 					} else {
 						league.addDivisionEasternConference(division);
@@ -66,7 +66,7 @@ public class LeagueBuilder {
 
 				if (teamRepositery.getTeam(teamName) == null) {
 					Team team = TeamFactory.createTeam(line);
-					if (conferenceName.equals("West")) {
+					if (conferenceName.equals("Ouest")) {
 						league.addTeamWesternConference(team, divisionName);
 					} else {
 						league.addTeamEasternConference(team, divisionName);

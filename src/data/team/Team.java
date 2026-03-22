@@ -13,6 +13,11 @@ import java.util.HashMap;
 
 public class Team {
     private String name;
+    private String city;
+    private String shortName;
+    private String abbreviation;
+    private String conference;
+    private String division;
     private String rival;
     private double popularity;
     private TeamPerformance teamPerformance = new TeamPerformance();
@@ -24,6 +29,11 @@ public class Team {
 
     public Team(String name, String rival, double popularity, TeamFinance teamFinance, Stadium stadium) {
         this.name = name;
+        this.city = "";
+        this.shortName = "";
+        this.abbreviation = "";
+        this.conference = "";
+        this.division = "";
         this.rival = rival;
         this.schedule = new Schedule();
         this.popularity = popularity;
@@ -39,6 +49,46 @@ public class Team {
 
     public void setNom(String name) {
         this.name = name;
+    }
+
+    public String getCity() {
+        return this.city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public String getShortName() {
+        return this.shortName;
+    }
+
+    public void setShortName(String shortName) {
+        this.shortName = shortName;
+    }
+
+    public String getAbbreviation() {
+        return this.abbreviation;
+    }
+
+    public void setAbbreviation(String abbreviation) {
+        this.abbreviation = abbreviation;
+    }
+
+    public String getConference() {
+        return this.conference;
+    }
+
+    public void setConference(String conference) {
+        this.conference = conference;
+    }
+
+    public String getDivision() {
+        return this.division;
+    }
+
+    public void setDivision(String division) {
+        this.division = division;
     }
 
     public String getRival() {

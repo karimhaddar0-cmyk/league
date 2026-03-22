@@ -32,6 +32,11 @@ public class TeamFactory {
         String stadiumName = data[33];
         Stadium stadium = new Stadium(stadiumName, 0.0, 0);
         Team team = new Team(teamName, rivalTeamName, teamPopularity, teamFinance, stadium);
+        team.setAbbreviation(data[3]);
+        team.setConference(data[4]);
+        team.setDivision(data[5]);
+        team.setCity(data[34]);
+        team.setShortName(data[35]);
         return team;
     }
 }

@@ -4,12 +4,31 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Image;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
 
+import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import data.team.Team;
+import data.team.finance.financialpolicy.AmbitiousPolicy;
+import data.team.finance.financialpolicy.BalancedPolicy;
+import data.team.finance.financialpolicy.FinancialPolicy;
+import data.team.finance.financialpolicy.ThriftyPolicy;
+import gui.panel.common.ButtonStyleUtil;
 import gui.panel.common.BuildBox;
+import gui.panel.common.DashboardPanelUtil;
 import gui.panel.common.SectionTitle;
+import gui.panel.common.TeamMapPanel;
+import gui.panel.openningPanel.OpeningPolicyDetailPanel;
+import gui.panel.openningPanel.OpeningTeamSelectionPanel;
+import process.manager.LeagueManager;
+import process.utilitary.TeamStatUtil;
 
 public class OpeningDashboard extends JPanel {
 
@@ -19,15 +38,48 @@ public class OpeningDashboard extends JPanel {
 	private static final int IDEAL_DASHBOARD_TOP_CARD_HEIGHT = 220;
 	private static final Color IDEAL_DASHBOARD_BACKGROUND_COLOR = new Color(247, 248, 250);
 
+	private LeagueManager leagueManager;
+	private ArrayList<Team> teams;
+	private Team selectedTeam;
 	private JButton continueButton;
+	private JButton randomPoliciesButton;
+	private TeamMapPanel openingMapPanel;
+	private OpeningTeamSelectionPanel teamSelectionPanel;
+	private OpeningPolicyDetailPanel policyDetailPanel;
 
 	public OpeningDashboard() {
+		this(new LeagueManager());
+	}
+
+	public OpeningDashboard(LeagueManager leagueManager) {
+		this.leagueManager = leagueManager;
+		this.leagueManager.prepareOpeningData();
 		create();
 		organize();
+		actions();
+		selectDefaultTeam();
 	}
 
 	private void create() {
+		teams = new ArrayList<Team>(leagueManager.getLeague().getAllTeam());
 		continueButton = new JButton("Continuer");
+		randomPoliciesButton = new JButton();
+		openingMapPanel = new TeamMapPanel();
+		teamSelectionPanel = new OpeningTeamSelectionPanel();
+		policyDetailPanel = new OpeningPolicyDetailPanel();
+
+		randomPoliciesButton.setFocusPainted(false);
+		ButtonStyleUtil.styleToggleButton(randomPoliciesButton);
+		ButtonStyleUtil.setToggleButtonSelected(randomPoliciesButton, true);
+		randomPoliciesButton.setIcon(createRandomIcon());
+		randomPoliciesButton.setText("");
+		randomPoliciesButton.setPreferredSize(new Dimension(44, 44));
+	}
+
+	private ImageIcon createRandomIcon() {
+		ImageIcon icon = new ImageIcon("src/test/randomIcon.png");
+		Image scaledImage = icon.getImage().getScaledInstance(28, 28, Image.SCALE_SMOOTH);
+		return new ImageIcon(scaledImage);
 	}
 
 	private void organize() {
@@ -42,10 +94,7 @@ public class OpeningDashboard extends JPanel {
 	}
 
 	private JPanel buildContentPanel() {
-		JPanel content = new JPanel(new BorderLayout(IDEAL_DASHBOARD_SPACING, IDEAL_DASHBOARD_SPACING));
-		content.setOpaque(false);
-		content.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, IDEAL_DASHBOARD_SPACING, IDEAL_DASHBOARD_SPACING, IDEAL_DASHBOARD_SPACING));
-		return content;
+		return DashboardPanelUtil.createContentPanel(IDEAL_DASHBOARD_SPACING);
 	}
 
 	private JPanel buildHeader() {
@@ -66,29 +115,38 @@ public class OpeningDashboard extends JPanel {
 	}
 
 	private JPanel buildCenterColumn() {
+		JPanel mapContent = new JPanel(new BorderLayout(0, 8));
+		mapContent.setOpaque(false);
+
+		JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
+		topPanel.setOpaque(false);
+		topPanel.setBorder(BorderFactory.createEmptyBorder(-8, 0, 0, 0));
+		topPanel.add(randomPoliciesButton);
+
+		mapContent.add(topPanel, BorderLayout.NORTH);
+		mapContent.add(openingMapPanel, BorderLayout.CENTER);
+
 		return new BuildBox(
 			"LOCALISATION DES FRANCHISES",
 			"Cliquez sur une ville",
-			"CARTE"
+			mapContent
 		);
 	}
 
 	private JPanel buildRightColumn() {
-		JPanel column = new JPanel(new BorderLayout(0, 12));
-		column.setOpaque(false);
-		column.setPreferredSize(new Dimension(IDEAL_DASHBOARD_RIGHT_COLUMN_WIDTH, 10));
+		JPanel column = DashboardPanelUtil.createRightColumn(IDEAL_DASHBOARD_RIGHT_COLUMN_WIDTH, 12);
 
 		JPanel topCard = new BuildBox(
 			"EQUIPE SELECTIONNEE",
 			"Equipe courante",
-			"EQUIPE / POLITIQUE"
+			teamSelectionPanel
 		);
 		topCard.setPreferredSize(new Dimension(IDEAL_DASHBOARD_RIGHT_COLUMN_WIDTH, IDEAL_DASHBOARD_TOP_CARD_HEIGHT));
 
 		JPanel bottomCard = new BuildBox(
 			"POLITIQUE FINANCIERE",
 			"Informations generales",
-			"DETAILS"
+			policyDetailPanel
 		);
 
 		column.add(topCard, BorderLayout.NORTH);
@@ -106,14 +164,100 @@ public class OpeningDashboard extends JPanel {
 		return footer;
 	}
 
+	private void actions() {
+		openingMapPanel.setTeamSelectionAction(new MapSelectionAction());
+		randomPoliciesButton.addActionListener(new RandomPoliciesListener());
+		teamSelectionPanel.getAmbitiousButton().addActionListener(new AmbitiousPolicyListener());
+		teamSelectionPanel.getBalancedButton().addActionListener(new BalancedPolicyListener());
+		teamSelectionPanel.getThriftyButton().addActionListener(new ThriftyPolicyListener());
+	}
+
+	private void selectDefaultTeam() {
+		if (teams.isEmpty()) {
+			setSelectedTeam(null);
+			return;
+		}
+		setSelectedTeam(teams.get(0));
+	}
+
+	private void setSelectedTeam(Team selectedTeam) {
+		this.selectedTeam = selectedTeam;
+		refreshSelectedTeamPanels();
+	}
+
+	private void refreshSelectedTeamPanels() {
+		teamSelectionPanel.updateTeam(selectedTeam);
+		if (selectedTeam != null) {
+			teamSelectionPanel.setSelectedPolicy(selectedTeam.getTeamFinance().getFinancialProfil());
+		}
+		policyDetailPanel.updateTeam(selectedTeam, leagueManager.getLeague());
+		if (selectedTeam == null) {
+			openingMapPanel.setSelectedTeamName(null);
+			return;
+		}
+		openingMapPanel.setSelectedTeamName(selectedTeam.getName());
+	}
+
+	private void applyPolicy(FinancialPolicy policy) {
+		if (selectedTeam == null) {
+			return;
+		}
+		leagueManager.chooseFinancialPolicy(selectedTeam, policy);
+		leagueManager.prepareOpeningData();
+		refreshSelectedTeamPanels();
+	}
+
+	private class MapSelectionAction implements Runnable {
+		@Override
+		public void run() {
+			setSelectedTeam(TeamStatUtil.findTeamByName(openingMapPanel.getSelectedTeamName()));
+		}
+	}
+
+	private class AmbitiousPolicyListener implements ActionListener {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			applyPolicy(new AmbitiousPolicy());
+		}
+	}
+
+	private class BalancedPolicyListener implements ActionListener {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			applyPolicy(new BalancedPolicy());
+		}
+	}
+
+	private class ThriftyPolicyListener implements ActionListener {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			applyPolicy(new ThriftyPolicy());
+		}
+	}
+
+	private class RandomPoliciesListener implements ActionListener {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			leagueManager.randomFinancialPolicy();
+			leagueManager.prepareOpeningData();
+			refreshSelectedTeamPanels();
+		}
+	}
+
 	public JButton getContinueButton() {
 		return continueButton;
 	}
 
 	public boolean hasSelectedProfil() {
-		return true;
+		return selectedTeam != null;
 	}
 
 	public void showSelectionWarning() {
+		JOptionPane.showMessageDialog(
+			this,
+			"Selectionnez une equipe sur la carte avant de continuer.",
+			"Selection requise",
+			JOptionPane.WARNING_MESSAGE
+		);
 	}
 }

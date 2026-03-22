@@ -11,7 +11,9 @@ import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import data.team.Team;
 import gui.panel.common.TeamDisplayUtil;
+import process.utilitary.TeamStatUtil;
 
 public class TeamLogoPanel extends JPanel {
 	private static final String LOGO_FOLDER_PATH = "src/test/nba_logos/";
@@ -81,6 +83,12 @@ public class TeamLogoPanel extends JPanel {
 	}
 
 	private String buildAbbreviation(String teamName) {
-		return TeamDisplayUtil.getAbbreviation(teamName);
+		if (teamName != null && !teamName.equals("")) {
+			Team team = TeamStatUtil.findTeamByName(teamName);
+			if (team != null) {
+				return TeamDisplayUtil.getAbbreviation(team);
+			}
+		}
+		return "---";
 	}
 }

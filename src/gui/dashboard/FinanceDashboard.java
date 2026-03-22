@@ -10,6 +10,7 @@ import java.awt.event.ActionListener;
 import javax.swing.JPanel;
 
 import gui.panel.common.BuildBox;
+import gui.panel.common.DashboardPanelUtil;
 import gui.panel.financePanel.FinanceHeaderPanel;
 
 public class FinanceDashboard extends JPanel {
@@ -49,10 +50,7 @@ public class FinanceDashboard extends JPanel {
 	}
 
 	private JPanel buildContentPanel() {
-		JPanel content = new JPanel(new BorderLayout(IDEAL_DASHBOARD_SPACING, IDEAL_DASHBOARD_SPACING));
-		content.setOpaque(false);
-		content.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, IDEAL_DASHBOARD_SPACING, IDEAL_DASHBOARD_SPACING, IDEAL_DASHBOARD_SPACING));
-		return content;
+		return DashboardPanelUtil.createContentPanel(IDEAL_DASHBOARD_SPACING);
 	}
 
 	private JPanel buildHeader() {
@@ -60,8 +58,7 @@ public class FinanceDashboard extends JPanel {
 	}
 
 	private JPanel buildBody() {
-		JPanel body = new JPanel(new BorderLayout(IDEAL_DASHBOARD_SPACING, 0));
-		body.setOpaque(false);
+		JPanel body = DashboardPanelUtil.createBodyPanel(IDEAL_DASHBOARD_SPACING, 0);
 		body.add(buildCenterColumn(), BorderLayout.CENTER);
 		body.add(buildRightColumn(), BorderLayout.EAST);
 		return body;
@@ -75,9 +72,7 @@ public class FinanceDashboard extends JPanel {
 	}
 
 	private JPanel buildRightColumn() {
-		JPanel column = new JPanel(new GridLayout(2, 1, 0, 12));
-		column.setOpaque(false);
-		column.setPreferredSize(new Dimension(IDEAL_DASHBOARD_RIGHT_COLUMN_WIDTH, 10));
+		JPanel column = DashboardPanelUtil.createGridColumn(2, 1, 0, 12, IDEAL_DASHBOARD_RIGHT_COLUMN_WIDTH);
 
 		column.add(new BuildBox("DISTRIBUTION - ÉQUIPE", "Équipe sélectionnée", "DISTRIBUTION"));//! À changer le string par un jpanel quand on aura la fonctionnalité
 		column.add(new BuildBox("DÉPENSES", "Équipe sélectionnée", "DÉPENSES"));//! À changer le string par un jpanel quand on aura la fonctionnalité

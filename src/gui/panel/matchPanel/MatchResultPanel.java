@@ -14,6 +14,7 @@ import javax.swing.JPanel;
 
 import data.sport.setup.Game;
 import data.sport.setup.GameResult;
+import data.team.Team;
 import gui.panel.common.TeamDisplayUtil;
 import gui.panel.mapPanel.effectifPanel.teamPanel.TeamLogoPanel;
 
@@ -47,25 +48,25 @@ public class MatchResultPanel extends JPanel {
 	}
 
 	public void showHiddenState(Game game, String dayLabel) {
-		String homeName = game.getGameContext().getHomeTeam().getName();
-		String awayName = game.getGameContext().getAwayTeam().getName();
-		updateTeamLabels(homeName, awayName, dayLabel);
+		Team homeTeam = game.getGameContext().getHomeTeam();
+		Team awayTeam = game.getGameContext().getAwayTeam();
+		updateTeamLabels(homeTeam, awayTeam, dayLabel);
 		matchStatusLabel.setText("À venir");
 		mainScoreLabel.setText("--");
 		quarterTitleLabel.setText("Résultats masqués");
-		homeQuarterTeamLabel.setText(TeamDisplayUtil.getShortName(homeName));
-		awayQuarterTeamLabel.setText(TeamDisplayUtil.getShortName(awayName));
+		homeQuarterTeamLabel.setText(TeamDisplayUtil.getShortName(homeTeam));
+		awayQuarterTeamLabel.setText(TeamDisplayUtil.getShortName(awayTeam));
 		resetQuarterTable();
 	}
 
 	public void showGame(Game game, String dayLabel) {
-		String homeName = game.getGameContext().getHomeTeam().getName();
-		String awayName = game.getGameContext().getAwayTeam().getName();
-		updateTeamLabels(homeName, awayName, dayLabel);
+		Team homeTeam = game.getGameContext().getHomeTeam();
+		Team awayTeam = game.getGameContext().getAwayTeam();
+		updateTeamLabels(homeTeam, awayTeam, dayLabel);
 		matchStatusLabel.setText("Terminé");
 		mainScoreLabel.setText(game.getHomeFinalScore() + " - " + game.getAwayFinalScore());
 		quarterTitleLabel.setText("Match terminé");
-		updateQuarterTable(game.getQuarterResults(), homeName, awayName);
+		updateQuarterTable(game.getQuarterResults(), homeTeam, awayTeam);
 	}
 
 	public void showEmptyState() {
@@ -222,19 +223,19 @@ public class MatchResultPanel extends JPanel {
 		table.add(totalLabel);
 	}
 
-	private void updateTeamLabels(String homeName, String awayName, String dayLabel) {
+	private void updateTeamLabels(Team homeTeam, Team awayTeam, String dayLabel) {
 		titleLabel.setText("SAISON RÉGULIÈRE - " + dayLabel.toUpperCase());
-		homeLogoPanel.setTeamName(homeName);
-		awayLogoPanel.setTeamName(awayName);
-		homeNameLabel.setText(TeamDisplayUtil.getShortName(homeName));
-		awayNameLabel.setText(TeamDisplayUtil.getShortName(awayName));
-		homeCityLabel.setText(extractCity(homeName));
-		awayCityLabel.setText(extractCity(awayName));
+		homeLogoPanel.setTeamName(homeTeam.getName());
+		awayLogoPanel.setTeamName(awayTeam.getName());
+		homeNameLabel.setText(TeamDisplayUtil.getShortName(homeTeam));
+		awayNameLabel.setText(TeamDisplayUtil.getShortName(awayTeam));
+		homeCityLabel.setText(TeamDisplayUtil.getCityName(homeTeam));
+		awayCityLabel.setText(TeamDisplayUtil.getCityName(awayTeam));
 	}
 
-	private void updateQuarterTable(GameResult[] quarterResults, String homeName, String awayName) {
-		homeQuarterTeamLabel.setText(TeamDisplayUtil.getShortName(homeName));
-		awayQuarterTeamLabel.setText(TeamDisplayUtil.getShortName(awayName));
+	private void updateQuarterTable(GameResult[] quarterResults, Team homeTeam, Team awayTeam) {
+		homeQuarterTeamLabel.setText(TeamDisplayUtil.getShortName(homeTeam));
+		awayQuarterTeamLabel.setText(TeamDisplayUtil.getShortName(awayTeam));
 		int homeTotal = 0;
 		int awayTotal = 0;
 		for (int i = 0; i < 4; i++) {
@@ -260,13 +261,5 @@ public class MatchResultPanel extends JPanel {
 		}
 		homeQuarterTotalLabel.setText("-");
 		awayQuarterTotalLabel.setText("-");
-	}
-
-	private String extractCity(String teamName) {
-		int index = teamName.lastIndexOf(' ');
-		if (index <= 0) {
-			return teamName;
-		}
-		return teamName.substring(0, index);
 	}
 }
