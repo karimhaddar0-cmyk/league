@@ -7,12 +7,14 @@ import java.awt.Dimension;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 
+import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 
 import data.calendar.GameDay;
 import data.finance.GameStat;
 import data.sport.setup.Game;
 import gui.panel.common.BuildBox;
+import gui.panel.common.DashboardPanelUtil;
 import gui.panel.matchPanel.MatchDayListPanel;
 import gui.panel.matchPanel.MatchDayListPanel.MatchSelectionListener;
 import gui.panel.matchPanel.MatchDetailPanel;
@@ -69,11 +71,7 @@ public class MatchDashboard extends JPanel {
 	}
 
 	private JPanel buildContentPanel() {
-		JPanel content = new JPanel(new BorderLayout(DASHBOARD_SPACING, DASHBOARD_SPACING));
-		content.setOpaque(false);
-		content.setBorder(javax.swing.BorderFactory.createEmptyBorder(
-				DASHBOARD_SPACING, DASHBOARD_SPACING, DASHBOARD_SPACING, DASHBOARD_SPACING));
-		return content;
+		return DashboardPanelUtil.createContentPanel(DASHBOARD_SPACING);
 	}
 
 	private JPanel buildHeader() {
@@ -81,8 +79,7 @@ public class MatchDashboard extends JPanel {
 	}
 
 	private JPanel buildBody() {
-		JPanel body = new JPanel(new BorderLayout(DASHBOARD_SPACING, 0));
-		body.setOpaque(false);
+		JPanel body = DashboardPanelUtil.createBodyPanel(DASHBOARD_SPACING, 0);
 		body.add(buildLeftColumn(), BorderLayout.WEST);
 		body.add(buildCenterColumn(), BorderLayout.CENTER);
 		body.add(buildRightColumn(), BorderLayout.EAST);

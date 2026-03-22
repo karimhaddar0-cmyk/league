@@ -149,7 +149,6 @@ public class MainGui extends JFrame {
 			}
 
 			calendarDashboard.startSeason();
-			mapDashboard.setSelectedTeam(mapDashboard.getSelectedTeam());
 			matchDashboard.loadGamesOfDay(simulationManager.getCurrentDate());
 			sidebar.setActiveSection("match");
 			dashboardLayout.show(dashboardPanel, "match");
