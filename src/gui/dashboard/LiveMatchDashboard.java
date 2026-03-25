@@ -20,8 +20,8 @@ import gui.panel.common.BuildBox;
 import gui.panel.matchPanel.liveMatchPanel.LiveActionsPanel;
 import gui.panel.matchPanel.liveMatchPanel.LiveMatchHeaderPanel;
 import gui.panel.matchPanel.liveMatchPanel.LiveTeamStatsPanel;
-import process.SimulationInterface;
 import process.manager.LiveMatchStatistics;
+import process.manager.SimulationManager;
 import process.visitor.actionresult.LiveActionTextVisitor;
 
 public class LiveMatchDashboard extends JPanel implements Runnable {
@@ -33,7 +33,7 @@ public class LiveMatchDashboard extends JPanel implements Runnable {
 	private static final Color BACKGROUND_COLOR = new Color(247, 248, 250);
 
 	private Runnable backToMatchAction;
-	private SimulationInterface simulationManager;
+	private SimulationManager simulationManager;
 	private LocalDate gameDate;
 	private Game game;
 	private String homeTeamName;
@@ -138,7 +138,7 @@ public class LiveMatchDashboard extends JPanel implements Runnable {
 		this.backToMatchAction = backToMatchAction;
 	}
 
-	public void setSimulationContext(SimulationInterface simulationManager, LocalDate gameDate) {
+	public void setSimulationContext(SimulationManager simulationManager, LocalDate gameDate) {
 		this.simulationManager = simulationManager;
 		this.gameDate = gameDate;
 	}

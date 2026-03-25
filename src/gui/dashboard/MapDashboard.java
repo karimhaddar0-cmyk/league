@@ -16,7 +16,7 @@ import gui.panel.common.SectionTitle;
 import gui.panel.common.TeamMapPanel;
 import gui.panel.mapPanel.effectifPanel.MapTeamPlayersPanel;
 import gui.panel.mapPanel.effectifPanel.MapTeamSummaryPanel;
-import process.SimulationInterface;
+import process.manager.SimulationManager;
 import process.repositery.TeamRepositery;
 import process.utilitary.TeamStatUtil;
 
@@ -30,7 +30,7 @@ public class MapDashboard extends JPanel {
 	private static final int IDEAL_DASHBOARD_RIGHT_COLUMN_WIDTH = 340;
 	private static final Color IDEAL_DASHBOARD_BACKGROUND_COLOR = new Color(247, 248, 250);
 
-	private SimulationInterface simulationManager;
+	private SimulationManager simulationManager;
 	private ArrayList<Team> teams;
 	private Team selectedTeam;
 	private TeamMapPanel mapPanel;
@@ -40,7 +40,7 @@ public class MapDashboard extends JPanel {
 	private TeamRepositery teamRepositery = TeamRepositery.getInstance();
 	private boolean currentSeasonSelected = true;
 
-	public MapDashboard(SimulationInterface simulationManager) {
+	public MapDashboard(SimulationManager simulationManager) {
 		this.simulationManager = simulationManager;
 		create();
 		organize();
