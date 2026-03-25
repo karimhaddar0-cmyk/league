@@ -19,6 +19,7 @@ import gui.panel.common.PlayerDisplayUtil;
 import gui.panel.mapPanel.effectifPanel.teamPanel.TeamLogoPanel;
 import gui.panel.mapPanel.effectifPanel.teamPanel.TeamRosterPanel;
 import process.utilitary.FinanceUtilitary;
+import process.utilitary.PlayerStatUtil;
 
 public class RosterDashboard extends JPanel {
 	private static final int DASHBOARD_SPACING = 16;
@@ -215,7 +216,7 @@ public class RosterDashboard extends JPanel {
 
 		double total = 0;
 		for (Player player : players) {
-			total += PlayerDisplayUtil.getDisplayedAssets(player, currentSeasonSelected).getPointPerMatch();
+			total += PlayerStatUtil.getDisplayedAssets(player, currentSeasonSelected).getPointPerMatch();
 		}
 		return total / players.size();
 	}

@@ -8,10 +8,7 @@ import data.player.Player;
 public class PlayerStatUtil {
 
 	public static Asset getDisplayedAssets(Player player, boolean currentSeasonSelected) {
-		if (!currentSeasonSelected) {
-			return player.getPreSeasonAssets();
-		}
-		if (player.getCurrentSeasonAssets().getMinutesPlayedPerMatch() > 0) {
+		if (currentSeasonSelected) {
 			return player.getCurrentSeasonAssets();
 		}
 		return player.getPreSeasonAssets();
