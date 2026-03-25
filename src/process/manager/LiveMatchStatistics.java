@@ -1,8 +1,4 @@
-<<<<<<< HEAD:src/gui/management/LiveMatchStatistics.java
-package gui.management;
-=======
 package process.manager;
->>>>>>> main:src/process/manager/LiveMatchStatistics.java
 
 import java.util.HashMap;
 

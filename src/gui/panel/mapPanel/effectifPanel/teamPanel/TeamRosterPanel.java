@@ -8,7 +8,6 @@ import javax.swing.JPanel;
 import data.player.Player;
 import data.team.Team;
 import gui.panel.mapPanel.effectifPanel.playerPanel.PlayerRosterEntryPanel;
-import process.utilitary.PlayerStatUtil;
 
 public class TeamRosterPanel extends JPanel {
 
@@ -26,10 +25,6 @@ public class TeamRosterPanel extends JPanel {
 		}
 
 		ArrayList<Player> players = new ArrayList<Player>(team.getPlayers().values());
-<<<<<<< HEAD
-=======
-		PlayerStatUtil.sortPlayersByDisplayedNote(players);
->>>>>>> main
 
 		int rows = 8;
 		int columns = (int) Math.ceil(players.size() / 8.0);
@@ -47,8 +42,4 @@ public class TeamRosterPanel extends JPanel {
 		revalidate();
 		repaint();
 	}
-<<<<<<< HEAD
-=======
-
->>>>>>> main
 }

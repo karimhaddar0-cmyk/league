@@ -9,13 +9,9 @@ import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-<<<<<<< HEAD
-import gui.management.PlayerLiveSummary;
-=======
->>>>>>> main
 import gui.panel.common.SectionTitle;
 import gui.panel.mapPanel.effectifPanel.playerPanel.PlayerSummaryPanel;
-import process.manager.LiveMatchStatistics.PlayerLiveSummary;
+import process.manager.PlayerLiveSummary;
 
 public class LiveTeamStatsPanel extends JPanel {
 	private JLabel pointsLabel;

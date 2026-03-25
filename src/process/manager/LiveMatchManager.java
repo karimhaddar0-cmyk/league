@@ -1,4 +1,4 @@
-package gui.management;
+package process.manager;
 
 import config.GameConfiguration;
 
@@ -8,8 +8,6 @@ import java.util.ArrayList;
 import data.sport.play.action.ActionResult;
 import data.sport.setup.Game;
 import data.sport.setup.GameResult;
-import process.manager.LeagueManager;
-
 public class LiveMatchManager implements Runnable {
 	private static final int CHRONO_SPEED = 200;
 	private static final int GAME_SECONDS_PER_TICK = 2;

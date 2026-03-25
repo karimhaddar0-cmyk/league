@@ -3,9 +3,7 @@ package gui.dashboard;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -13,6 +11,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import data.player.Player;
 import data.team.Team;
 import gui.panel.common.BuildBox;
 import gui.panel.common.DashboardCard;
@@ -20,7 +19,6 @@ import gui.panel.common.PlayerDisplayUtil;
 import gui.panel.mapPanel.effectifPanel.teamPanel.TeamLogoPanel;
 import gui.panel.mapPanel.effectifPanel.teamPanel.TeamRosterPanel;
 import process.utilitary.FinanceUtilitary;
-import process.utilitary.TeamStatUtil;
 
 public class RosterDashboard extends JPanel {
 	private static final int DASHBOARD_SPACING = 16;
@@ -139,11 +137,7 @@ public class RosterDashboard extends JPanel {
 	}
 
 	private JPanel buildSummaryPanel() {
-<<<<<<< HEAD
 		JPanel summaryPanel = new JPanel(new java.awt.GridLayout(1, 3, DASHBOARD_SPACING, 0));
-=======
-		JPanel summaryPanel = new JPanel(new GridLayout(1, 4, DASHBOARD_SPACING, 0));
->>>>>>> main
 		summaryPanel.setOpaque(false);
 		summaryPanel.add(buildMetricCard("Joueurs", playersCountValueLabel));
 		summaryPanel.add(buildMetricCard("Masse salariale", payrollValueLabel));
@@ -193,7 +187,6 @@ public class RosterDashboard extends JPanel {
 	private void updateDashboard() {
 		updateSeasonButtonsStyle();
 		if (selectedTeam == null) {
-<<<<<<< HEAD
 			teamLogoPanel.setTeamName("");
 			teamNameLabel.setText("Effectif");
 			subtitleLabel.setText("-");
@@ -201,33 +194,15 @@ public class RosterDashboard extends JPanel {
 			payrollValueLabel.setText("-");
 			averagePointsValueLabel.setText("-");
 			rosterPanel.updateTeam(null, currentSeasonSelected);
-=======
-			showEmptyState();
->>>>>>> main
 			return;
 		}
-		showTeamState();
-	}
 
-	private void showEmptyState() {
-		teamLogoPanel.setTeamName("");
-		teamNameLabel.setText("Effectif");
-		subtitleLabel.setText("-");
-		playersCountValueLabel.setText("-");
-		payrollValueLabel.setText("-");
-		averageNoteValueLabel.setText("-");
-		averagePointsValueLabel.setText("-");
-		rosterPanel.updateTeam(null, currentSeasonSelected);
-	}
-
-	private void showTeamState() {
 		teamLogoPanel.setTeamName(selectedTeam.getName());
 		teamNameLabel.setText(selectedTeam.getName());
 		subtitleLabel.setText("Effectif complet");
 		playersCountValueLabel.setText(String.valueOf(selectedTeam.getPlayers().size()));
 		FinanceUtilitary.updateTeamPayroll(selectedTeam);
 		payrollValueLabel.setText(PlayerDisplayUtil.formatSalary(selectedTeam.getTeamFinance().getPayroll()));
-<<<<<<< HEAD
 		averagePointsValueLabel.setText(PlayerDisplayUtil.formatOneDecimal(computeAveragePoints()));
 		rosterPanel.updateTeam(selectedTeam, currentSeasonSelected);
 	}
@@ -245,15 +220,6 @@ public class RosterDashboard extends JPanel {
 		return total / players.size();
 	}
 
-=======
-		averageNoteValueLabel
-				.setText(PlayerDisplayUtil.formatOneDecimal(TeamStatUtil.getAverageNote(selectedTeam)) + "/100");
-		averagePointsValueLabel.setText(
-				PlayerDisplayUtil.formatOneDecimal(TeamStatUtil.getAveragePoints(selectedTeam, currentSeasonSelected)));
-		rosterPanel.updateTeam(selectedTeam, currentSeasonSelected);
-	}
-
->>>>>>> main
 	private void updateSeasonButtonsStyle() {
 		Color activeBackground = new Color(0x37, 0x84, 0xB3);
 		Color inactiveBackground = new Color(240, 240, 240);
@@ -278,26 +244,26 @@ public class RosterDashboard extends JPanel {
 		}
 	}
 
-	private class BackToMapListener implements ActionListener {
+	private class BackToMapListener implements java.awt.event.ActionListener {
 		@Override
-		public void actionPerformed(ActionEvent e) {
+		public void actionPerformed(java.awt.event.ActionEvent e) {
 			if (backToMapAction != null) {
 				backToMapAction.run();
 			}
 		}
 	}
 
-	private class CurrentSeasonListener implements ActionListener {
+	private class CurrentSeasonListener implements java.awt.event.ActionListener {
 		@Override
-		public void actionPerformed(ActionEvent e) {
+		public void actionPerformed(java.awt.event.ActionEvent e) {
 			currentSeasonSelected = true;
 			updateDashboard();
 		}
 	}
 
-	private class PreviousSeasonListener implements ActionListener {
+	private class PreviousSeasonListener implements java.awt.event.ActionListener {
 		@Override
-		public void actionPerformed(ActionEvent e) {
+		public void actionPerformed(java.awt.event.ActionEvent e) {
 			currentSeasonSelected = false;
 			updateDashboard();
 		}

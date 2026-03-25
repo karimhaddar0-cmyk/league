@@ -18,6 +18,17 @@ public class TeamDisplayUtil {
 		return team.getShortName();
 	}
 
+	public static String getShortName(String teamName) {
+		if (teamName == null || teamName.equals("")) {
+			return "-";
+		}
+		String[] words = teamName.split(" ");
+		if (words.length == 0) {
+			return teamName;
+		}
+		return words[words.length - 1];
+	}
+
 	public static String getCityName(Team team) {
 		if (team == null || team.getCity() == null || team.getCity().equals("")) {
 			return "-";

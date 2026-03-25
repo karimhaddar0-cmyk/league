@@ -1,4 +1,4 @@
-package gui.management;
+package process.manager;
 
 import data.player.Player;
 
