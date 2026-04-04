@@ -12,21 +12,30 @@ import javax.swing.JPanel;
 import gui.dashboard.CalendarDashboard;
 import gui.dashboard.FinanceDashboard;
 import gui.dashboard.LiveMatchDashboard;
+import gui.dashboard.LoadingDashboard;
 import gui.dashboard.MapDashboard;
 import gui.dashboard.MatchDashboard;
 import gui.dashboard.OpeningDashboard;
 import gui.dashboard.RankingDashboard;
 import gui.dashboard.RosterDashboard;
 import gui.layout.SidebarPanel;
+import gui.managment.StartSimulationThread;
 import process.orchestrator.GUIInterface;
 
 public class MainGui extends JFrame {
+	private static final long serialVersionUID = 1L;
+
+	private MainGui instance = this;
+	private static final String OPENING_CARD = "opening";
+	private static final String LOADING_CARD = "loading";
+	private static final String MAIN_CARD = "main";
 
 	private CardLayout rootLayout;
 	private JPanel rootPanel;
 	private CardLayout dashboardLayout;
 	private JPanel dashboardPanel;
 	private OpeningDashboard openingPanel;
+	private LoadingDashboard loadingDashboard;
 	private JPanel mainPanel;
 	private CalendarDashboard calendarDashboard;
 	private MatchDashboard matchDashboard;
@@ -53,18 +62,20 @@ public class MainGui extends JFrame {
 		dashboardLayout = new CardLayout();
 		dashboardPanel = new JPanel(dashboardLayout);
 		openingPanel = new OpeningDashboard(guiInterface);
+		loadingDashboard = new LoadingDashboard();
 		mainPanel = buildApplicationPanel();
 	}
 
 	private void organize() {
-		rootPanel.add(openingPanel, "opening");
-		rootPanel.add(mainPanel, "main");
+		rootPanel.add(openingPanel, OPENING_CARD);
+		rootPanel.add(loadingDashboard, LOADING_CARD);
+		rootPanel.add(mainPanel, MAIN_CARD);
 
 		setLayout(new BorderLayout());
 		add(rootPanel, BorderLayout.CENTER);
 
 		dashboardLayout.show(dashboardPanel, "match");
-		rootLayout.show(rootPanel, "opening");
+		rootLayout.show(rootPanel, OPENING_CARD);
 
 		pack();
 		setExtendedState(JFrame.MAXIMIZED_BOTH);
@@ -146,12 +157,21 @@ public class MainGui extends JFrame {
 				return;
 			}
 
-			calendarDashboard.startSeason();
-			matchDashboard.loadGamesOfDay(guiInterface.getCurrentDate());
-			sidebar.setActiveSection("match");
-			dashboardLayout.show(dashboardPanel, "match");
-			rootLayout.show(rootPanel, "main");
+			rootLayout.show(rootPanel, LOADING_CARD);
+			Thread startSimulationThread = new Thread(
+					new StartSimulationThread(
+							guiInterface, instance),
+					"start-simulation-thread");
+			startSimulationThread.start();
 		}
+	}
+
+	public void finishSimulationLoading() {
+		calendarDashboard.refreshSeasonState();
+		matchDashboard.loadGamesOfDay(guiInterface.getCurrentDate());
+		sidebar.setActiveSection("match");
+		dashboardLayout.show(dashboardPanel, "match");
+		rootLayout.show(rootPanel, MAIN_CARD);
 	}
 
 	private class QuitAction implements ActionListener {
