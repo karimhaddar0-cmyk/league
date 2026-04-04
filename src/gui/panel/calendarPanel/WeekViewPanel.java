@@ -7,7 +7,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.TreeMap;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -17,6 +16,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import data.calendar.GameDay;
+import gui.managment.SimulateDayThread;
 import gui.panel.common.RoundedButton;
 import process.orchestrator.GUIInterface;
 
@@ -30,11 +30,15 @@ public class WeekViewPanel extends JPanel {
 	private final JButton nextDayButton = new RoundedButton("Semaine +");
 	private final JLabel currentDateLabel = new JLabel();
 	private final JPanel matchDisplayPanel = new JPanel();
+	private final JLabel loadingLabel = new JLabel("Simulation en cours...");
 
 	private final GUIInterface guiInterface;
 	private LocalDate displayedDate;
 	private LocalDate lastSimulatedDate;
 	private OpenMatchDayAction openMatchDayAction;
+
+	public volatile boolean finishedSimulation = true;
+	private LocalDate dayBeingSimulated;
 
 	public WeekViewPanel(GUIInterface guiInterface) {
 		this.guiInterface = guiInterface;
@@ -49,6 +53,8 @@ public class WeekViewPanel extends JPanel {
 		currentDateLabel.setText("Date : -");
 		matchDisplayPanel.setLayout(new BoxLayout(matchDisplayPanel, BoxLayout.Y_AXIS));
 		matchDisplayPanel.setOpaque(false);
+		loadingLabel.setFont(TEXT_FONT);
+		loadingLabel.setVisible(false);
 	}
 
 	private void organize() {
@@ -57,6 +63,7 @@ public class WeekViewPanel extends JPanel {
 		topBarPanel.add(previousDayButton);
 		topBarPanel.add(currentDateLabel);
 		topBarPanel.add(nextDayButton);
+		topBarPanel.add(loadingLabel);
 
 		add(topBarPanel, BorderLayout.NORTH);
 		add(matchDisplayPanel, BorderLayout.CENTER);
@@ -200,8 +207,9 @@ public class WeekViewPanel extends JPanel {
 	}
 
 	private void simulateDisplayedDay(LocalDate day) {
-		guiInterface.simulateDay(day);
-		guiInterface.displayGameDay(day);
+		finishedSimulation = false;
+		Thread thread = new Thread(new SimulateDayThread(guiInterface, day, this));
+		thread.start();
 	}
 
 	private boolean hasGame(LocalDate day) {
@@ -307,10 +315,10 @@ public class WeekViewPanel extends JPanel {
 			if (displayed) {
 				return;
 			}
+			dayBeingSimulated = day;
+			showLoadingState();
 			simulateDisplayedDay(day);
-			lastSimulatedDate = day;
-			displayedDate = day;
-			updateDisplay();
+			startSimualtionCharging(day);
 		}
 	}
 
@@ -327,5 +335,41 @@ public class WeekViewPanel extends JPanel {
 		public void actionPerformed(ActionEvent e) {
 			openMatchDashboard(gameDay, day);
 		}
+	}
+
+	private void startSimualtionCharging(LocalDate day) {
+		while (!finishedSimulation) {
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+			}
+			showLoadingState();
+			// ajout d'une barre de chargement ou d'un indicateur de progression ici
+		}
+		hideLoadingState();
+		lastSimulatedDate = day;
+		displayedDate = day;
+		updateDisplay();
+	}
+
+	private void showLoadingState() {
+		previousDayButton.setEnabled(false);
+		nextDayButton.setEnabled(false);
+		loadingLabel.setVisible(true);
+	}
+
+	private void hideLoadingState() {
+		previousDayButton.setEnabled(true);
+		nextDayButton.setEnabled(true);
+		loadingLabel.setVisible(false);
+	}
+
+	public boolean isFinishedSimulation() {
+		return finishedSimulation;
+	}
+
+	public void setFinishedSimulation(boolean finishedSimulation) {
+		this.finishedSimulation = finishedSimulation;
 	}
 }
